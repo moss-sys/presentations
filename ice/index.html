@@ -112,6 +112,9 @@
 
   .link { display: block; border-radius: 99px; transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s; pointer-events: auto; }
   @media (hover: hover) { .link:hover { transform: scale(1.04); box-shadow: 0 0 2.4cqw rgba(214,240,40,.7); } }
+  .link.card { border-radius: 1.85cqw; cursor: pointer; }
+  @media (hover: hover) { .link.card:hover { transform: translateY(-.3cqw); box-shadow: 0 0 0 .15cqw rgb(255 255 255 / .7), 0 1cqw 2.4cqw rgb(90 130 230 / .35); } }
+  .link.card:active { transform: scale(.985); transition-duration: .1s; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
@@ -135,20 +138,21 @@
   </section>
   <section class="slide" id="s2">
     <div class="frame" role="img" aria-label="У каждого праздника свой сценарий" style="aspect-ratio:1080.0/607.0">
-      <img class="lay" src="img/s2-l0.webp?v=a72a64a6" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
-      <svg class="arc" viewBox="0 0 1080 607" preserveAspectRatio="none" aria-hidden="true"><defs><mask id="am2" maskUnits="userSpaceOnUse" x="-600" y="-400" width="2400" height="1500"><path class="arc-rv" d="M 1044.9 88.0 L 1058.3 95.1 L 1068.9 101.2 L 1057.9 90.8 L 1045.2 82.6 L 1031.5 76.1 L 1017.3 70.7 L 1002.8 66.3 L 988.2 62.1 L 973.5 58.7 L 958.7 55.4 L 943.8 52.7 L 928.8 50.1 L 913.8 47.8 L 898.7 46.3 L 883.6 44.7 L 868.5 43.8 L 853.4 43.0 L 838.2 42.5 L 823.0 42.8 L 807.9 43.0 L 792.7 43.9 L 777.6 44.9 L 762.5 46.1 L 747.4 47.7 L 732.4 49.7 L 717.3 51.7 L 702.4 54.2 L 687.4 56.7 L 672.5 59.4 L 657.6 62.4 L 642.8 65.5 L 628.0 68.9 L 613.2 72.3 L 598.5 76.0 L 583.8 79.8 L 569.1 83.7 L 554.6 87.9 L 540.0 92.1 L 525.5 96.6 L 511.1 101.2 L 496.6 105.8 L 482.3 110.8 L 468.0 115.8 L 453.7 121.0 L 439.5 126.3 L 425.4 131.8 L 411.3 137.6 L 397.3 143.3 L 383.4 149.3 L 369.5 155.5 L 355.7 161.8 L 342.0 168.2 L 328.4 174.9 L 314.8 181.7 L 301.4 188.8 L 288.0 195.9 L 274.6 203.1 L 261.4 210.5 L 248.2 218.1 L 235.2 225.8 L 222.2 233.6 L 209.3 241.6 L 196.5 249.8 L 183.8 258.1 L 171.2 266.5 L 158.7 275.2 L 146.4 284.0 L 134.3 293.1 L 122.3 302.4 L 110.6 312.0 L 99.1 322.0 L 87.9 332.2 L 77.2 342.9 L 67.1 354.3 L 57.6 366.1 L 49.0 378.6 L 41.7 391.9 L 35.7 405.8 L 32.0 420.5 L 31.7 435.5 L 35.7 450.1 L 43.2 463.2 L 53.8 474.1 L 66.3 482.7 L 80.2 488.7 L 94.9 492.5 L 109.9 494.3 L 125.1 494.5 L 140.1 493.0 L 155.1 490.4 L 169.8 486.6 L 184.2 482.0 L 198.4 476.5 L 212.1 470.0 L 225.4 462.8 L 238.3 454.7 L 250.7 446.0 L 262.6 436.6 L 273.8 426.4 L 284.3 415.5 L 294.0 403.8 L 303.1 391.7 L 311.5 379.1 L 319.3 366.1 L 326.4 352.7 L 332.6 338.8 L 337.8 324.6 L 342.0 310.0 L 345.0 295.1 L 346.9 280.1 L 347.3 264.9 L 346.4 249.8 L 343.8 234.9 L 339.4 220.4 L 333.0 206.6 L 324.5 194.1 L 313.8 183.4 L 301.7 174.2 L 288.8 166.3 L 275.0 159.9 L 260.8 154.8 L 246.1 151.2 L 231.0 149.4 L 215.8 149.0 L 200.7 149.9 L 185.7 152.0 L 170.8 154.8 L 156.0 158.4 L 141.5 162.6 L 127.1 167.6 L 113.1 173.2 L 99.3 179.6 L 85.8 186.5 L 72.6 193.9 L 59.6 201.8 L 47.0 210.2 L 34.6 219.0 L 22.5 228.1 L 10.6 237.5 L -0.8 247.5 L -11.8 258.0 L -22.6 268.6 L -32.9 279.8 L -43.1 290.9 L -52.9 302.5 L -62.4 314.4 L -71.9 326.1 L -81.0 338.3 L -90.1 350.4 L -98.8 362.8 L -107.7 375.1 L -116.2 387.7 L -124.7 400.2 L -133.1 412.8 L -141.6 425.4 L -149.5 438.4 L -157.2 451.4 L -164.5 464.7 L -159.5 458.7" stroke-width="143"/></mask><filter id="ab2" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="5"/></filter></defs><g mask="url(#am2)"><image href="img/s2-arc.webp?v=b800c9dd" width="1080" height="607" preserveAspectRatio="none"/><image class="arc-t" href="img/s2-arct.webp?v=3d6f407b" width="1080" height="607" preserveAspectRatio="none"/></g><circle class="arc-head" r="9" filter="url(#ab2)"/><circle class="arc-head arc-core" r="3.2"/></svg>
+      <img class="lay" src="img/s2-l0.webp?v=1a709c8d" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
       <div class="mid word" style="left:6.7037%;top:16.7381%;width:39.6296%;height:9.2916%" data-k="0"><img src="img/s2-w0.webp?v=fdc10757" alt=""></div><div class="mid word" style="left:6.9259%;top:26.0956%;width:43.0000%;height:16.9357%" data-k="1"><img src="img/s2-w1.webp?v=796095eb" alt=""></div><div class="mid word" style="left:6.9259%;top:42.7677%;width:38.0000%;height:11.2026%" data-k="2"><img src="img/s2-w2.webp?v=62bbc0f8" alt=""></div>
       <img class="lay" src="img/s2-l1.webp?v=ae042418" alt="" style="left:7.1914%;top:7.7979%;width:92.8086%;height:73.9703%">
-      <div class="gl" style="left:54.5370%;top:15.4860%;width:42.5000%;height:30.4778%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s2-g6-h.png?v=f7d41afc);mask-image:url(img/s2-g6-h.png?v=f7d41afc)"></i><i class="sheen" style="-webkit-mask-image:url(img/s2-g6-m.png?v=c57eb2b6);mask-image:url(img/s2-g6-m.png?v=c57eb2b6)"></i></div>
-      <div class="gl" style="left:54.5370%;top:50.0824%;width:42.5000%;height:30.4778%" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s2-g8-h.png?v=f7d41afc);mask-image:url(img/s2-g8-h.png?v=f7d41afc)"></i><i class="sheen" style="-webkit-mask-image:url(img/s2-g8-m.png?v=c57eb2b6);mask-image:url(img/s2-g8-m.png?v=c57eb2b6)"></i></div>
+      <div class="gl" style="left:54.5370%;top:15.4860%;width:42.5000%;height:30.4778%" data-b="6" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s2-g6-h.png?v=f7d41afc);mask-image:url(img/s2-g6-h.png?v=f7d41afc)"></i><i class="sheen" style="-webkit-mask-image:url(img/s2-g6-m.png?v=c57eb2b6);mask-image:url(img/s2-g6-m.png?v=c57eb2b6)"></i></div>
+      <div class="gl" style="left:54.5370%;top:50.0824%;width:42.5000%;height:30.4778%" data-b="8" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s2-g8-h.png?v=f7d41afc);mask-image:url(img/s2-g8-h.png?v=f7d41afc)"></i><i class="sheen" style="-webkit-mask-image:url(img/s2-g8-m.png?v=c57eb2b6);mask-image:url(img/s2-g8-m.png?v=c57eb2b6)"></i></div>
       <canvas class="snow" data-col="[]"></canvas>
+      <a class="link card" href="#s3" aria-label="Детские события: день рождения и Новый год" data-b="6" style="left:54.44444444444444%;top:15.485996705107082%;width:42.592592592592595%;height:30.64250411861614%"></a>
+      <a class="link card" href="#s9" aria-label="Для взрослых: корпоратив на коньках" data-b="8" style="left:54.44444444444444%;top:50.0823723228995%;width:42.592592592592595%;height:30.64250411861614%"></a>
     </div>
   </section>
   <section class="slide dark" id="s3">
     <div class="frame" role="img" aria-label="Четыре сценария, много впечатлений" style="aspect-ratio:1080.0/607.0">
       <img class="lay" src="img/s3-l0.webp?v=bbdc4519" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
-      <div class="gl dark" style="left:5.9259%;top:35.9143%;width:41.5741%;height:58.1549%" data-k="0"><i class="halo" style="-webkit-mask-image:url(img/s3-g5-h.png?v=c50bf199);mask-image:url(img/s3-g5-h.png?v=c50bf199)"></i><i class="sheen" style="-webkit-mask-image:url(img/s3-g5-m.png?v=728ac40b);mask-image:url(img/s3-g5-m.png?v=728ac40b)"></i></div>
-      <div class="gl dark" style="left:51.2963%;top:35.9143%;width:41.5741%;height:58.1549%" data-k="1"><i class="halo" style="-webkit-mask-image:url(img/s3-g7-h.png?v=c50bf199);mask-image:url(img/s3-g7-h.png?v=c50bf199)"></i><i class="sheen" style="-webkit-mask-image:url(img/s3-g7-m.png?v=728ac40b);mask-image:url(img/s3-g7-m.png?v=728ac40b)"></i></div>
+      <div class="gl dark" style="left:5.9259%;top:35.9143%;width:41.5741%;height:58.1549%" data-b="5" data-k="0"><i class="halo" style="-webkit-mask-image:url(img/s3-g5-h.png?v=c50bf199);mask-image:url(img/s3-g5-h.png?v=c50bf199)"></i><i class="sheen" style="-webkit-mask-image:url(img/s3-g5-m.png?v=728ac40b);mask-image:url(img/s3-g5-m.png?v=728ac40b)"></i></div>
+      <div class="gl dark" style="left:51.2963%;top:35.9143%;width:41.5741%;height:58.1549%" data-b="7" data-k="1"><i class="halo" style="-webkit-mask-image:url(img/s3-g7-h.png?v=c50bf199);mask-image:url(img/s3-g7-h.png?v=c50bf199)"></i><i class="sheen" style="-webkit-mask-image:url(img/s3-g7-m.png?v=728ac40b);mask-image:url(img/s3-g7-m.png?v=728ac40b)"></i></div>
       <div class="mid mv-rock" style="left:32.7037%;top:22.8007%;width:17.0370%;height:35.1895%"><div class="anim" style="transform-origin:61.96% 99.06%;--dur:4.2s"><img src="img/s3-rock0.webp?v=2bd69ac8" alt=""></div></div>
       <canvas class="snow" data-col="[]"></canvas>
     </div>
@@ -156,8 +160,8 @@
   <section class="slide dark" id="s4">
     <div class="frame" role="img" aria-label="Six Seven Party и Ледовые старты" style="aspect-ratio:1080.0/607.0">
       <img class="lay" src="img/s4-l0.webp?v=ab1cb00d" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
-      <div class="gl dark" style="left:5.9259%;top:9.5552%;width:41.5741%;height:74.2998%" data-k="0"><i class="halo" style="-webkit-mask-image:url(img/s4-g3-h.png?v=81f1e668);mask-image:url(img/s4-g3-h.png?v=81f1e668)"></i><i class="sheen" style="-webkit-mask-image:url(img/s4-g3-m.png?v=a5c96a0e);mask-image:url(img/s4-g3-m.png?v=a5c96a0e)"></i></div>
-      <div class="gl dark" style="left:51.2963%;top:9.5552%;width:41.5741%;height:74.2998%" data-k="1"><i class="halo" style="-webkit-mask-image:url(img/s4-g5-h.png?v=81f1e668);mask-image:url(img/s4-g5-h.png?v=81f1e668)"></i><i class="sheen" style="-webkit-mask-image:url(img/s4-g5-m.png?v=a5c96a0e);mask-image:url(img/s4-g5-m.png?v=a5c96a0e)"></i></div>
+      <div class="gl dark" style="left:5.9259%;top:9.5552%;width:41.5741%;height:74.2998%" data-b="3" data-k="0"><i class="halo" style="-webkit-mask-image:url(img/s4-g3-h.png?v=81f1e668);mask-image:url(img/s4-g3-h.png?v=81f1e668)"></i><i class="sheen" style="-webkit-mask-image:url(img/s4-g3-m.png?v=a5c96a0e);mask-image:url(img/s4-g3-m.png?v=a5c96a0e)"></i></div>
+      <div class="gl dark" style="left:51.2963%;top:9.5552%;width:41.5741%;height:74.2998%" data-b="5" data-k="1"><i class="halo" style="-webkit-mask-image:url(img/s4-g5-h.png?v=81f1e668);mask-image:url(img/s4-g5-h.png?v=81f1e668)"></i><i class="sheen" style="-webkit-mask-image:url(img/s4-g5-m.png?v=a5c96a0e);mask-image:url(img/s4-g5-m.png?v=a5c96a0e)"></i></div>
       <div class="skates" style="left:82.2222%;top:45.7848%;width:21.2963%;height:50.4404%"><img class="sk-back" src="img/s4-sk-back.webp?v=a1606c9e" alt="" style="transform-origin:47.65% 12.09%"><img class="sk-front" src="img/s4-sk-front.webp?v=cef32592" alt="" style="transform-origin:47.65% 12.09%"><img class="sk-bow" src="img/s4-sk-bow.webp?v=87c97a99" alt="" style="transform-origin:47.65% 12.09%"></div>
       <canvas class="snow" data-col="[]"></canvas>
     </div>
@@ -170,7 +174,7 @@
       <div class="mid mv-sway2" style="left:68.8889%;top:39.5387%;width:30.1481%;height:58.8468%;"><div class="anim" style="transform-origin:50% 8%"><img src="img/s5-ph1.webp?v=ad831e2a" alt=""></div></div>
       <div class="mid word" style="left:4.2222%;top:14.5634%;width:34.4444%;height:14.6952%" data-k="0"><img src="img/s5-w0.webp?v=033cea7a" alt=""></div><div class="mid word" style="left:41.6296%;top:14.5634%;width:19.2963%;height:14.6952%" data-k="1"><img src="img/s5-w1.webp?v=517a1d32" alt=""></div><div class="mid word" style="left:4.2222%;top:28.8633%;width:47.7407%;height:13.5091%" data-k="2"><img src="img/s5-w2.webp?v=b0efc732" alt=""></div><div class="mid word" style="left:4.2222%;top:42.1087%;width:13.3333%;height:12.1911%" data-k="3"><img src="img/s5-w3.webp?v=51eee8de" alt=""></div><div class="mid word" style="left:20.3333%;top:42.1087%;width:19.4074%;height:12.1911%" data-k="4"><img src="img/s5-w4.webp?v=3ae24489" alt=""></div>
       <img class="lay" src="img/s5-l1.webp?v=9f72a7bc" alt="" style="left:4.1667%;top:55.5739%;width:42.6235%;height:28.0615%">
-      <div class="gl" style="left:4.1667%;top:55.5189%;width:42.6389%;height:9.9671%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s5-g8-h.png?v=801143a6);mask-image:url(img/s5-g8-h.png?v=801143a6)"></i><i class="sheen" style="-webkit-mask-image:url(img/s5-g8-m.png?v=240009a6);mask-image:url(img/s5-g8-m.png?v=240009a6)"></i></div>
+      <div class="gl" style="left:4.1667%;top:55.5189%;width:42.6389%;height:9.9671%" data-b="8" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s5-g8-h.png?v=801143a6);mask-image:url(img/s5-g8-h.png?v=801143a6)"></i><i class="sheen" style="-webkit-mask-image:url(img/s5-g8-m.png?v=240009a6);mask-image:url(img/s5-g8-m.png?v=240009a6)"></i></div>
       <canvas class="snow" data-col="[]"></canvas>
     </div>
   </section>
@@ -179,11 +183,11 @@
       <img class="lay" src="img/s6-l0.webp?v=a72a64a6" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
       <div class="mid word" style="left:3.9259%;top:7.9077%;width:38.1111%;height:8.1713%" data-k="0"><img src="img/s6-w0.webp?v=ddc04331" alt=""></div><div class="mid word" style="left:44.6667%;top:7.9077%;width:28.5926%;height:8.1713%" data-k="1"><img src="img/s6-w1.webp?v=b5183170" alt=""></div><div class="mid word" style="left:3.9259%;top:16.6063%;width:34.0370%;height:7.0511%" data-k="2"><img src="img/s6-w2.webp?v=8b74cd3b" alt=""></div><div class="mid word" style="left:40.5185%;top:16.6063%;width:41.0000%;height:7.0511%" data-k="3"><img src="img/s6-w3.webp?v=79cb1a95" alt=""></div>
       <img class="lay" src="img/s6-l1.webp?v=20dffd1e" alt="" style="left:3.6420%;top:32.6194%;width:93.8889%;height:61.0104%">
-      <div class="gl" style="left:3.9815%;top:47.6112%;width:42.5000%;height:44.8105%" data-k="0"><i class="halo" style="-webkit-mask-image:url(img/s6-g4-h.png?v=a0d5f982);mask-image:url(img/s6-g4-h.png?v=a0d5f982)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g4-m.png?v=9f32fb28);mask-image:url(img/s6-g4-m.png?v=9f32fb28)"></i></div>
-      <div class="gl" style="left:48.6111%;top:32.6194%;width:23.7037%;height:28.1713%" data-k="1"><i class="halo" style="-webkit-mask-image:url(img/s6-g6-h.png?v=86dc940d);mask-image:url(img/s6-g6-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g6-m.png?v=f7436354);mask-image:url(img/s6-g6-m.png?v=f7436354)"></i></div>
-      <div class="gl" style="left:73.5185%;top:32.6194%;width:23.7037%;height:28.1713%" data-k="2"><i class="halo" style="-webkit-mask-image:url(img/s6-g8-h.png?v=86dc940d);mask-image:url(img/s6-g8-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g8-m.png?v=f7436354);mask-image:url(img/s6-g8-m.png?v=f7436354)"></i></div>
-      <div class="gl" style="left:48.6111%;top:64.2504%;width:23.7037%;height:28.1713%" data-k="3"><i class="halo" style="-webkit-mask-image:url(img/s6-g10-h.png?v=86dc940d);mask-image:url(img/s6-g10-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g10-m.png?v=f7436354);mask-image:url(img/s6-g10-m.png?v=f7436354)"></i></div>
-      <div class="gl" style="left:73.5185%;top:64.2504%;width:23.7037%;height:28.1713%" data-k="4"><i class="halo" style="-webkit-mask-image:url(img/s6-g12-h.png?v=86dc940d);mask-image:url(img/s6-g12-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g12-m.png?v=f7436354);mask-image:url(img/s6-g12-m.png?v=f7436354)"></i></div>
+      <div class="gl" style="left:3.9815%;top:47.6112%;width:42.5000%;height:44.8105%" data-b="4" data-k="0"><i class="halo" style="-webkit-mask-image:url(img/s6-g4-h.png?v=a0d5f982);mask-image:url(img/s6-g4-h.png?v=a0d5f982)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g4-m.png?v=9f32fb28);mask-image:url(img/s6-g4-m.png?v=9f32fb28)"></i></div>
+      <div class="gl" style="left:48.6111%;top:32.6194%;width:23.7037%;height:28.1713%" data-b="6" data-k="1"><i class="halo" style="-webkit-mask-image:url(img/s6-g6-h.png?v=86dc940d);mask-image:url(img/s6-g6-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g6-m.png?v=f7436354);mask-image:url(img/s6-g6-m.png?v=f7436354)"></i></div>
+      <div class="gl" style="left:73.5185%;top:32.6194%;width:23.7037%;height:28.1713%" data-b="8" data-k="2"><i class="halo" style="-webkit-mask-image:url(img/s6-g8-h.png?v=86dc940d);mask-image:url(img/s6-g8-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g8-m.png?v=f7436354);mask-image:url(img/s6-g8-m.png?v=f7436354)"></i></div>
+      <div class="gl" style="left:48.6111%;top:64.2504%;width:23.7037%;height:28.1713%" data-b="10" data-k="3"><i class="halo" style="-webkit-mask-image:url(img/s6-g10-h.png?v=86dc940d);mask-image:url(img/s6-g10-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g10-m.png?v=f7436354);mask-image:url(img/s6-g10-m.png?v=f7436354)"></i></div>
+      <div class="gl" style="left:73.5185%;top:64.2504%;width:23.7037%;height:28.1713%" data-b="12" data-k="4"><i class="halo" style="-webkit-mask-image:url(img/s6-g12-h.png?v=86dc940d);mask-image:url(img/s6-g12-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g12-m.png?v=f7436354);mask-image:url(img/s6-g12-m.png?v=f7436354)"></i></div>
       <div class="mid mv-nod" style="left:11.0303%;top:22.2115%;width:28.8829%;height:14.8949%"><div class="anim" style="transform-origin:47.37% 97.89%"><img src="img/s6-head.webp?v=45df2760" alt=""></div></div>
       <canvas class="snow" data-col="[]"></canvas>
     </div>
@@ -191,16 +195,16 @@
   <section class="slide dark" id="s7">
     <div class="frame" role="img" aria-label="Ваш праздник, ваш формат: цены" style="aspect-ratio:1080.0/607.0">
       <img class="lay" src="img/s7-l0.webp?v=ddc3d09e" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
-      <div class="gl dark" style="left:5.9259%;top:36.7381%;width:41.5741%;height:56.1779%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s7-g5-h.png?v=3737f745);mask-image:url(img/s7-g5-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s7-g5-m.png?v=02c12123);mask-image:url(img/s7-g5-m.png?v=02c12123)"></i></div>
-      <div class="gl dark" style="left:51.2963%;top:36.7381%;width:41.5741%;height:56.1779%" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s7-g7-h.png?v=3737f745);mask-image:url(img/s7-g7-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s7-g7-m.png?v=02c12123);mask-image:url(img/s7-g7-m.png?v=02c12123)"></i></div>
+      <div class="gl dark" style="left:5.9259%;top:36.7381%;width:41.5741%;height:56.1779%" data-b="5" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s7-g5-h.png?v=3737f745);mask-image:url(img/s7-g5-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s7-g5-m.png?v=02c12123);mask-image:url(img/s7-g5-m.png?v=02c12123)"></i></div>
+      <div class="gl dark" style="left:51.2963%;top:36.7381%;width:41.5741%;height:56.1779%" data-b="7" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s7-g7-h.png?v=3737f745);mask-image:url(img/s7-g7-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s7-g7-m.png?v=02c12123);mask-image:url(img/s7-g7-m.png?v=02c12123)"></i></div>
       <canvas class="snow" data-col="[]"></canvas>
     </div>
   </section>
   <section class="slide" id="s8">
     <div class="frame" role="img" aria-label="Ёлка на льду: цены" style="aspect-ratio:1080.0/607.0">
       <img class="lay" src="img/s8-l0.webp?v=7c798f5f" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
-      <div class="gl" style="left:5.9259%;top:28.9951%;width:41.5741%;height:56.1779%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s8-g4-h.png?v=3737f745);mask-image:url(img/s8-g4-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s8-g4-m.png?v=02c12123);mask-image:url(img/s8-g4-m.png?v=02c12123)"></i></div>
-      <div class="gl" style="left:51.2963%;top:28.9951%;width:41.5741%;height:56.1779%" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s8-g6-h.png?v=3737f745);mask-image:url(img/s8-g6-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s8-g6-m.png?v=02c12123);mask-image:url(img/s8-g6-m.png?v=02c12123)"></i></div>
+      <div class="gl" style="left:5.9259%;top:28.9951%;width:41.5741%;height:56.1779%" data-b="4" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s8-g4-h.png?v=3737f745);mask-image:url(img/s8-g4-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s8-g4-m.png?v=02c12123);mask-image:url(img/s8-g4-m.png?v=02c12123)"></i></div>
+      <div class="gl" style="left:51.2963%;top:28.9951%;width:41.5741%;height:56.1779%" data-b="6" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s8-g6-h.png?v=3737f745);mask-image:url(img/s8-g6-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s8-g6-m.png?v=02c12123);mask-image:url(img/s8-g6-m.png?v=02c12123)"></i></div>
       <div class="mid stk" style="left:78.9630%;top:19.2422%;width:18.2963%;height:16.4745%;--r:-13deg;--d:0.55s"><div class="anim"><img src="img/s8-st0.webp?v=6cf9e253" alt=""></div></div>
       <img class="lay" src="img/s8-l1.webp?v=5a1f0724" alt="" style="left:3.3333%;top:23.8880%;width:47.3457%;height:8.6766%">
       <canvas class="snow" data-col="[]"></canvas>
@@ -232,8 +236,8 @@
   <section class="slide" id="s11">
     <div class="frame" role="img" aria-label="Тимбилдинг на катке: цены" style="aspect-ratio:1080.0/607.0">
       <img class="lay" src="img/s11-l0.webp?v=da4b922e" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
-      <div class="gl" style="left:5.9259%;top:41.6804%;width:22.8704%;height:44.4811%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s11-g5-h.png?v=513b19cf);mask-image:url(img/s11-g5-h.png?v=513b19cf)"></i><i class="sheen" style="-webkit-mask-image:url(img/s11-g5-m.png?v=db58a427);mask-image:url(img/s11-g5-m.png?v=db58a427)"></i></div>
-      <div class="gl" style="left:30.5556%;top:41.6804%;width:22.8704%;height:44.4811%" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s11-g7-h.png?v=513b19cf);mask-image:url(img/s11-g7-h.png?v=513b19cf)"></i><i class="sheen" style="-webkit-mask-image:url(img/s11-g7-m.png?v=db58a427);mask-image:url(img/s11-g7-m.png?v=db58a427)"></i></div>
+      <div class="gl" style="left:5.9259%;top:41.6804%;width:22.8704%;height:44.4811%" data-b="5" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s11-g5-h.png?v=513b19cf);mask-image:url(img/s11-g5-h.png?v=513b19cf)"></i><i class="sheen" style="-webkit-mask-image:url(img/s11-g5-m.png?v=db58a427);mask-image:url(img/s11-g5-m.png?v=db58a427)"></i></div>
+      <div class="gl" style="left:30.5556%;top:41.6804%;width:22.8704%;height:44.4811%" data-b="7" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s11-g7-h.png?v=513b19cf);mask-image:url(img/s11-g7-h.png?v=513b19cf)"></i><i class="sheen" style="-webkit-mask-image:url(img/s11-g7-m.png?v=db58a427);mask-image:url(img/s11-g7-m.png?v=db58a427)"></i></div>
       <div class="mid stk" style="left:42.4444%;top:35.0577%;width:13.8148%;height:12.0593%;--r:12deg;--d:0.55s"><div class="anim"><img src="img/s11-st0.webp?v=26a09d98" alt=""></div></div>
       <img class="lay" src="img/s11-l1.webp?v=43a3bf1d" alt="" style="left:6.0494%;top:32.0154%;width:92.3765%;height:63.6463%">
       <div class="mid mv-nod" style="left:53.4164%;top:3.6754%;width:45.4771%;height:30.6943%"><div class="anim" style="transform-origin:49.87% 98.36%"><img src="img/s11-head.webp?v=fbfc8d43" alt=""></div></div>
@@ -329,18 +333,28 @@
     halo.animate([{ opacity: 0 }, { opacity: strong ? .95 : .55, offset: .4 }, { opacity: 0 }],
       { duration: strong ? 1500 : 1700, delay, easing: 'ease-out' });
   }
-  const pulseAt = new Map();
+  // один блик на всю страницу: не чаще раза в 15 с, случайная видимая карточка
+  let lastShine = -1e9, nextShine = 0;
+  function shineRandom(scope) {
+    const vh = innerHeight, els = [...scope.querySelectorAll('.gl')].filter(g => {
+      const r = g.getBoundingClientRect(), m = r.height * .15; return r.top + m >= 0 && r.bottom - m <= vh;
+    });
+    if (!els.length) return false;
+    shine(els[Math.random() * els.length | 0], 0, true);
+    lastShine = performance.now(); nextShine = lastShine + rnd(15000, 22000);
+    return true;
+  }
   setInterval(() => {
-    if (still || document.hidden) return;
-    const now = performance.now();
-    for (const s of slides) {
-      if (!s.classList.contains('live') || !s.classList.contains('played')) continue;
-      const els = [...s.querySelectorAll('.gl[data-pulse]')]; if (!els.length) continue;
-      const st = pulseAt.get(s) || { t: now + 11000, i: 0 };
-      if (now >= st.t) { shine(els[st.i % els.length], 0, false); st.i++; st.t = now + rnd(11000, 15000); }
-      pulseAt.set(s, st);
-    }
-  }, 400);
+    if (still || document.hidden || performance.now() < nextShine) return;
+    shineRandom(document);
+  }, 500);
+
+  // плашки-кнопки: блик при наведении и нажатии
+  document.querySelectorAll('.link.card').forEach(l => {
+    const gl = l.closest('.frame').querySelector(`.gl[data-b="${l.dataset.b}"]`); let t = 0;
+    const go = () => { const now = performance.now(); if (gl && !still && now - t > 1300) { t = now; shine(gl, 0, true); } };
+    l.addEventListener('pointerenter', go); l.addEventListener('pointerdown', go);
+  });
 
   // ---------- дуга: прорисовка вдоль осевой линии ----------
   const arcs = new Map();
@@ -521,9 +535,12 @@
     const now = performance.now();
     if (now - (+s.dataset.gt || -1e9) < 4000) return;
     s.dataset.gt = now; s.dataset.wt = now;
-    s.querySelectorAll('.gl').forEach(g => { const k = +g.dataset.k; if (k >= 0) shine(g, 350 + k * 260, true); });
     words(s, 500);
-    const st = pulseAt.get(s); if (st) st.t = now + 11000;
+    // блик при заходе - только если с прошлого прошло 15 с, и после слов заголовка
+    if (now - lastShine > 15000 && s.querySelector('.gl')) {
+      lastShine = now; nextShine = now + rnd(15000, 22000);
+      setTimeout(() => { if (s.classList.contains('live')) shineRandom(s); }, 1600);
+    }
   }
   function play(s) {
     if (s.dataset.done) { if (!still) greet(s); return; }
@@ -543,7 +560,7 @@
     if (still || document.hidden) return;
     const now = performance.now();
     slides.forEach(s => {
-      if (s.classList.contains('live') && s.dataset.done && now - (+s.dataset.wt || 0) > 22000) { s.dataset.wt = now; words(s, 0); }
+      if (s.classList.contains('live') && s.dataset.done && now - (+s.dataset.wt || 0) > 35000 && now - lastShine > 3000 && nextShine - now > 3000) { s.dataset.wt = now; words(s, 0); }
     });
   }, 2000);
   const reveal = new IntersectionObserver(es => es.forEach(e => {
