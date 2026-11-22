@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>ДМС для души · Охта Парк</title>
+<link rel="preload" as="image" href="img/s1-mid.webp?v=0f9497e5">
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: #fff; }
+  body { margin: 0; background: #fff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+
+  .slide { position: relative; width: 100%; }
+  .frame { position: relative; width: 100%; aspect-ratio: 16 / 9; container-type: inline-size; overflow: hidden; }
+  .lay, .mid, .hot, .snow { position: absolute; }
+  .lay { display: block; user-select: none; pointer-events: none; }
+  .frame img { -webkit-user-drag: none; user-select: none; }
+
+  /* появление слайда */
+  .js .slide .frame { opacity: 0; transform: translateY(40px) scale(.985); transition: opacity .9s ease, transform 1.1s cubic-bezier(.2,.8,.2,1); }
+  .js .slide.in .frame { opacity: 1; transform: none; }
+
+  /* подвижный слой: параллакс при прокрутке + собственное движение */
+  .mid { pointer-events: none; }
+  .mid .par, .mid .anim { position: absolute; inset: 0; will-change: transform; }
+  .mid .par { transform: translate3d(0, calc(var(--p, 0) * var(--px, -2.2cqw)), 0); }
+  .mid img { position: absolute; display: block; width: 100%; height: 100%; }
+  .mid .glow { animation: glow 3.6s ease-in-out infinite; opacity: .4; }
+  @keyframes glow { 0%, 100% { opacity: .35; } 50% { opacity: .9; } }
+
+  .mv-float .anim { transform-origin: 50% 100%; animation: float 7s ease-in-out infinite; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1) rotate(0); }
+    50% { transform: translateY(-1.1%) scale(1.018) rotate(-.6deg); }
+  }
+  .mv-jump .anim { transform-origin: 50% 100%; animation: jump 2.8s cubic-bezier(.45,0,.55,1) infinite; }
+  @keyframes jump {
+    0%, 100% { transform: translateY(0) scale(1, 1); }
+    12% { transform: translateY(.6%) scale(1.01, .985); }
+    45% { transform: translateY(-3.2%) scale(.995, 1.01) rotate(.8deg); }
+    55% { transform: translateY(-3.2%) scale(.995, 1.01) rotate(-.8deg); }
+    88% { transform: translateY(0) scale(1, 1); }
+  }
+  .mv-glide .anim { transform-origin: 45% 60%; animation: glide 6s ease-in-out infinite; }
+  @keyframes glide {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    35% { transform: translate(-1.6%, -2.4%) rotate(-2.2deg); }
+    70% { transform: translate(.8%, -.8%) rotate(.8deg); }
+  }
+  .mv-kb { --px: -1.4cqw; }
+  .mv-kb .anim { animation: kb 22s ease-in-out infinite alternate; }
+  @keyframes kb { from { transform: scale(1.05); } to { transform: scale(1.12) translate(-1%, -.6%); } }
+  /* на обложке заголовок впечатан в фото: движение совсем лёгкое, чтобы он не уезжал */
+  .mv-kb1 { --px: -.45cqw; }
+  .mv-kb1 .anim { transform-origin: 50% 30%; animation: kb1 16s ease-in-out infinite alternate; }
+  @keyframes kb1 { from { transform: scale(1.018); } to { transform: scale(1.045); } }
+
+  .slide:not(.live) .anim, .slide:not(.live) .glow, .slide:not(.live) .hot, .slide:not(.live) .kb { animation-play-state: paused; }
+
+  /* снег на обложке */
+  .snow { inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  /* карточки и плашки */
+  .hot {
+    display: block; overflow: hidden; border-radius: var(--r); z-index: 2;
+    pointer-events: none; will-change: transform;
+    transition: transform .45s cubic-bezier(.34,1.56,.64,1), box-shadow .45s ease, filter .45s ease;
+  }
+  .hot img { display: block; width: 100%; height: 100%; }
+  .hot::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.45) 48%, transparent 66%);
+    transform: translateX(-120%);
+  }
+  a.hot { pointer-events: auto; }
+
+  /* по очереди подсвечиваются, когда слайд на экране */
+  .slide.live .hot { animation: pop 1.1s cubic-bezier(.34,1.4,.64,1) calc(var(--i) * 160ms + .35s); }
+  .slide.live .hot::after { animation: sheen 1.1s ease calc(var(--i) * 160ms + .5s); }
+  .slide.live .hot--item { animation-name: pop-item; }
+  @keyframes pop {
+    0%, 100% { transform: none; box-shadow: none; }
+    40% { transform: scale(1.04); box-shadow: 0 0 0 .08cqw rgba(255,255,255,.6), 0 0 2.4cqw color-mix(in srgb, var(--glow) 50%, transparent); }
+  }
+  @keyframes pop-item {
+    0%, 100% { transform: none; box-shadow: none; }
+    40% { transform: scale(1.035); box-shadow: 0 0 0 .07cqw rgba(255,255,255,.6), 0 0 2.6cqw rgba(255,255,255,.4); }
+  }
+  @keyframes sheen { from { transform: translateX(-120%); } to { transform: translateX(120%); } }
+  /* слайды 3-5: плашки стоят на месте, двигается и светится только человек */
+  .slide.calm.live .hot, .slide.calm.live .hot::after { animation: none; }
+
+  /* фото на слайде 2 медленно наезжает */
+  .hot--photo .kb { position: absolute; inset: 0; animation: kb 18s ease-in-out infinite alternate; }
+  .slide.live .hot--photo { animation: none; }
+
+  /* кнопки связи пульсируют */
+  .slide.live .hot--cta {
+    animation: pop 1.1s cubic-bezier(.34,1.4,.64,1) calc(var(--i) * 160ms + .35s), pulse 2.8s ease-in-out 2.4s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--glow) 0%, transparent); }
+    50% { box-shadow: 0 0 0 .5cqw color-mix(in srgb, var(--glow) 18%, transparent), 0 0 2cqw color-mix(in srgb, var(--glow) 30%, transparent); }
+  }
+
+  /* компьютер с мышкой: наведение и нажатие */
+  @media (hover: hover) and (pointer: fine) {
+    .hot { pointer-events: auto; cursor: pointer; }
+    .hot--item, .hot--photo { cursor: default; }
+    .hot:hover, .hot:focus-visible {
+      z-index: 3; outline: none; animation: none !important;
+      transform: translateY(-.25cqw) scale(1.035);
+      box-shadow: 0 0 0 .08cqw rgba(255,255,255,.55),
+        0 1.2cqw 2.6cqw -.8cqw color-mix(in srgb, var(--glow) 55%, transparent),
+        0 0 2.4cqw color-mix(in srgb, var(--glow) 45%, transparent);
+      filter: brightness(1.04) saturate(1.06);
+    }
+    .hot:hover::after { animation: sheen 1.1s ease forwards !important; }
+    .hot--pill:hover, .hot--cta:hover { transform: translateY(-.25cqw) scale(1.07); }
+    .hot--photo:hover { transform: scale(1.02); }
+    .hot--item:hover { transform: scale(1.04); box-shadow: 0 0 0 .07cqw rgba(255,255,255,.6), 0 0 2.6cqw rgba(255,255,255,.35), 0 1cqw 2.4cqw -1cqw rgba(0,0,0,.35); }
+    .hot.hot:active { transform: translateY(.05cqw) scale(.975); transition-duration: .12s; }
+  }
+
+  /* навигация */
+  .dots {
+    position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 10;
+    display: flex; flex-direction: column; gap: 10px; padding: 10px 7px; border-radius: 99px;
+    background: rgba(255,255,255,.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 18px rgba(0,0,0,.12);
+  }
+  .dots a { display: block; width: 9px; height: 9px; border-radius: 99px; background: rgba(5,72,129,.28);
+    transition: height .35s cubic-bezier(.34,1.56,.64,1), background .3s, transform .25s; }
+  .dots a:hover { transform: scale(1.35); background: rgba(5,72,129,.6); }
+  .dots a.on { height: 26px; background: #054881; box-shadow: 0 0 10px rgba(5,72,129,.5); }
+  @media (max-width: 700px) { .dots { display: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+    .js .slide .frame { opacity: 1; transform: none; }
+    .mid .par { transform: none; }
+  }
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+<main>
+  <section class="slide" id="s1" style="--glow:#3b8fe0">
+    <div class="frame" role="img" aria-label="ДМС для души. Корпоративные абонементы Охта Парка">
+      <img class="lay" src="img/s1-back.webp?v=4c1fa311" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="mid mv-kb1" style="left:0.0000%;top:0.0000%;width:99.9653%;height:100.0000%"><div class="par"><div class="anim"><img src="img/s1-mid.webp?v=0f9497e5" alt=""></div></div></div>
+      <img class="lay" src="img/s1-front.webp?v=11610768" alt="" style="left:0.0000%;top:19.3056%;width:97.8646%;height:77.0833%">
+      <canvas class="snow" aria-hidden="true"></canvas>
+    </div>
+  </section>
+  <section class="slide" id="s2" style="--glow:#b20b12">
+    <div class="frame" role="img" aria-label="Зачем компании эта программа">
+      <img class="lay" src="img/s2.webp?v=f721675a" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="hot hot--photo" aria-hidden="true" style="left:4.4271%;top:35.3704%;width:40.3646%;height:59.5370%;--r:1.4062cqw;--i:0"><span class="kb"><img src="img/s2-h0.webp?v=dbe9ca9f" alt=""></span></div>
+      <div class="hot hot--pill" aria-hidden="true" style="left:50.0000%;top:35.3704%;width:17.8646%;height:8.3333%;--r:2.3438cqw;--i:1"><img src="img/s2-h1.webp?v=c5f843c4" alt=""></div>
+      <div class="hot hot--pill" aria-hidden="true" style="left:69.0104%;top:35.3704%;width:23.5938%;height:8.3333%;--r:2.3438cqw;--i:2"><img src="img/s2-h2.webp?v=ecb2ef25" alt=""></div>
+      <div class="hot hot--pill" aria-hidden="true" style="left:50.0000%;top:45.8333%;width:23.8021%;height:8.3333%;--r:2.3438cqw;--i:3"><img src="img/s2-h3.webp?v=24651d5c" alt=""></div>
+      <div class="hot hot--pill" aria-hidden="true" style="left:74.9479%;top:45.8333%;width:17.2917%;height:8.3333%;--r:2.3438cqw;--i:4"><img src="img/s2-h4.webp?v=4b6253e1" alt=""></div>
+      <div class="hot hot--pill" aria-hidden="true" style="left:50.0000%;top:56.2963%;width:37.8125%;height:8.3333%;--r:2.3438cqw;--i:5"><img src="img/s2-h5.webp?v=ab23d0aa" alt=""></div>
+      <div class="hot hot--card" aria-hidden="true" style="left:50.0000%;top:75.1852%;width:45.2604%;height:19.8148%;--r:1.4062cqw;--i:6"><img src="img/s2-h6.webp?v=5d082657" alt=""></div>
+    </div>
+  </section>
+  <section class="slide calm" id="s3" style="--glow:#3d9bff">
+    <div class="frame" role="img" aria-label="01 Баланс и перезагрузка">
+      <img class="lay" src="img/s3-back.webp?v=85d0d083" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="mid mv-float" style="left:24.1667%;top:14.1358%;width:42.8472%;height:85.8642%"><div class="par"><div class="anim"><img class="glow" src="img/s3-glow.webp?v=f241f922" alt="" style="left:-25.932%;top:-23.005%;width:151.864%;height:146.010%"><img src="img/s3-mid.webp?v=0c68ca12" alt=""></div></div></div>
+      <img class="lay" src="img/s3-front.webp?v=ddfdaef0" alt="" style="left:3.8021%;top:6.3426%;width:88.2031%;height:89.3056%">
+      <div class="hot hot--card" aria-hidden="true" style="left:3.8021%;top:24.2593%;width:29.1146%;height:29.3519%;--r:2.3438cqw;--i:0"><img src="img/s3-h0.webp?v=762aeb5f" alt=""></div>
+      <div class="hot hot--card" aria-hidden="true" style="left:3.8021%;top:57.0370%;width:29.1146%;height:38.6111%;--r:2.3438cqw;--i:1"><img src="img/s3-h1.webp?v=fb38fd1e" alt=""></div>
+      <div class="hot hot--item" aria-hidden="true" style="left:64.2708%;top:5.3704%;width:31.1458%;height:23.7963%;--r:1.5625cqw;--i:2"><img src="img/s3-h2.webp?v=fcdd5c6b" alt=""></div>
+      <div class="hot hot--item" aria-hidden="true" style="left:64.2708%;top:33.8889%;width:31.1458%;height:26.3889%;--r:1.5625cqw;--i:3"><img src="img/s3-h3.webp?v=5df95b6d" alt=""></div>
+      <div class="hot hot--item" aria-hidden="true" style="left:64.2708%;top:66.0185%;width:31.1458%;height:27.7778%;--r:1.5625cqw;--i:4"><img src="img/s3-h4.webp?v=bd82f0c7" alt=""></div>
+    </div>
+  </section>
+  <section class="slide calm" id="s4" style="--glow:#ff3b47">
+    <div class="frame" role="img" aria-label="02 Семейный ритм">
+      <img class="lay" src="img/s4-back.webp?v=061e6f34" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="mid mv-jump" style="left:25.6250%;top:10.9259%;width:36.0417%;height:87.2222%"><div class="par"><div class="anim"><img class="glow" src="img/s4-glow.webp?v=51ec4b28" alt="" style="left:-30.829%;top:-22.647%;width:161.657%;height:145.294%"><img src="img/s4-mid.webp?v=dc3c4227" alt=""></div></div></div>
+      <img class="lay" src="img/s4-front.webp?v=9621f8e8" alt="" style="left:3.8021%;top:4.7685%;width:29.1146%;height:90.8796%">
+      <div class="hot hot--card" aria-hidden="true" style="left:3.8021%;top:24.2593%;width:29.1146%;height:29.3519%;--r:2.3438cqw;--i:0"><img src="img/s4-h0.webp?v=1bf04db3" alt=""></div>
+      <div class="hot hot--card" aria-hidden="true" style="left:3.8021%;top:57.0370%;width:29.1146%;height:38.6111%;--r:2.3438cqw;--i:1"><img src="img/s4-h1.webp?v=79a461c0" alt=""></div>
+      <div class="hot hot--item" aria-hidden="true" style="left:64.2708%;top:5.3704%;width:31.1458%;height:23.6111%;--r:1.5625cqw;--i:2"><img src="img/s4-h2.webp?v=6631295c" alt=""></div>
+      <div class="hot hot--item" aria-hidden="true" style="left:64.2708%;top:33.8889%;width:31.1458%;height:25.1852%;--r:1.5625cqw;--i:3"><img src="img/s4-h3.webp?v=7dec59e8" alt=""></div>
+      <div class="hot hot--item" aria-hidden="true" style="left:64.2708%;top:66.0185%;width:31.1458%;height:28.7037%;--r:1.5625cqw;--i:4"><img src="img/s4-h4.webp?v=18c5c0cc" alt=""></div>
+    </div>
+  </section>
+  <section class="slide calm" id="s5" style="--glow:#3fb4ff">
+    <div class="frame" role="img" aria-label="03 Вызов и драйв">
+      <img class="lay" src="img/s5-back.webp?v=d35e9824" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="mid mv-glide" style="left:17.9514%;top:1.1111%;width:46.1111%;height:96.7901%"><div class="par"><div class="anim"><img class="glow" src="img/s5-glow.webp?v=b90283fa" alt="" style="left:-24.096%;top:-20.408%;width:148.193%;height:140.816%"><img src="img/s5-mid.webp?v=6667cc30" alt=""></div></div></div>
+      <img class="lay" src="img/s5-front.webp?v=285dd2cc" alt="" style="left:3.8021%;top:6.3426%;width:29.1146%;height:89.3056%">
+      <div class="hot hot--card" aria-hidden="true" style="left:3.8021%;top:24.2593%;width:29.1146%;height:29.3519%;--r:2.3438cqw;--i:0"><img src="img/s5-h0.webp?v=8b47ce29" alt=""></div>
+      <div class="hot hot--card" aria-hidden="true" style="left:3.8021%;top:57.0370%;width:29.1146%;height:38.6111%;--r:2.3438cqw;--i:1"><img src="img/s5-h1.webp?v=ab696661" alt=""></div>
+      <div class="hot hot--item" aria-hidden="true" style="left:64.2708%;top:5.3704%;width:31.1458%;height:26.9444%;--r:1.5625cqw;--i:2"><img src="img/s5-h2.webp?v=c1d23618" alt=""></div>
+      <div class="hot hot--item" aria-hidden="true" style="left:64.2708%;top:33.8889%;width:31.1458%;height:29.9074%;--r:1.5625cqw;--i:3"><img src="img/s5-h3.webp?v=7963af82" alt=""></div>
+      <div class="hot hot--item" aria-hidden="true" style="left:64.2708%;top:66.0185%;width:31.1458%;height:26.9444%;--r:1.5625cqw;--i:4"><img src="img/s5-h4.webp?v=fbb8c097" alt=""></div>
+    </div>
+  </section>
+  <section class="slide" id="s6" style="--glow:#1f5fae">
+    <div class="frame" role="img" aria-label="Как запустить программу: три шага">
+      <img class="lay" src="img/s6.webp?v=c49ba685" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="hot hot--card" aria-hidden="true" style="left:4.9479%;top:33.5185%;width:26.1979%;height:57.5926%;--r:1.4062cqw;--i:0"><img src="img/s6-h0.webp?v=8daf16c2" alt=""></div>
+      <div class="hot hot--card" aria-hidden="true" style="left:36.8750%;top:33.5185%;width:26.1979%;height:57.5926%;--r:1.4062cqw;--i:1"><img src="img/s6-h1.webp?v=edc98b68" alt=""></div>
+      <div class="hot hot--card" aria-hidden="true" style="left:68.8021%;top:33.5185%;width:26.1979%;height:57.5926%;--r:1.4062cqw;--i:2"><img src="img/s6-h2.webp?v=2dc86a03" alt=""></div>
+    </div>
+  </section>
+  <section class="slide" id="s7" style="--glow:#0d4f8f">
+    <div class="frame" role="img" aria-label="Активная команда, эффективный бизнес. Контакты">
+      <img class="lay" src="img/s7-back.webp?v=4c1fa311" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="mid mv-kb" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%"><div class="par"><div class="anim"><img src="img/s7-mid.webp?v=a7067618" alt=""></div></div></div>
+      <img class="lay" src="img/s7-front.webp?v=d0b25a39" alt="" style="left:4.7396%;top:5.6481%;width:49.7396%;height:81.4815%">
+      <div class="hot hot--pill" aria-hidden="true" style="left:7.5521%;top:57.8704%;width:16.6667%;height:5.0926%;--r:1.4583cqw;--i:0"><img src="img/s7-h0.webp?v=e483b4ba" alt=""></div>
+      <div class="hot hot--pill" aria-hidden="true" style="left:25.4167%;top:57.9630%;width:19.3229%;height:5.0926%;--r:1.4583cqw;--i:1"><img src="img/s7-h1.webp?v=15412d39" alt=""></div>
+      <div class="hot hot--pill" aria-hidden="true" style="left:7.5521%;top:64.2593%;width:22.4479%;height:5.0926%;--r:1.4583cqw;--i:2"><img src="img/s7-h2.webp?v=9889a3cd" alt=""></div>
+      <a class="hot hot--cta" href="mailto:info@ohtapark.ru" aria-label="Написать на info@ohtapark.ru" style="left:7.5521%;top:78.3333%;width:19.0625%;height:6.1111%;--r:1.7188cqw;--i:3"><img src="img/s7-h3.webp?v=73e0a214" alt=""></a>
+      <a class="hot hot--cta" href="tel:+79214003709" aria-label="Позвонить +7 921 400-37-09" style="left:28.7500%;top:78.3333%;width:17.0312%;height:6.1111%;--r:1.7188cqw;--i:4"><img src="img/s7-h4.webp?v=b0b7972c" alt=""></a>
+    </div>
+  </section>
+</main>
+<nav class="dots" aria-label="Слайды"><a href="#s1" aria-label="Слайд 1"></a><a href="#s2" aria-label="Слайд 2"></a><a href="#s3" aria-label="Слайд 3"></a><a href="#s4" aria-label="Слайд 4"></a><a href="#s5" aria-label="Слайд 5"></a><a href="#s6" aria-label="Слайд 6"></a><a href="#s7" aria-label="Слайд 7"></a></nav>
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const dots = [...document.querySelectorAll('.dots a')];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // появление (один раз)
+  const reveal = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); reveal.unobserve(e.target); }
+  }), { threshold: .15 });
+  slides.forEach(s => reveal.observe(s));
+
+  // «живой» слайд: анимации идут только на экране, подсветка карточек повторяется при каждом заходе
+  const live = new Set();
+  const liveObs = new IntersectionObserver(es => es.forEach(e => {
+    e.target.classList.toggle('live', e.isIntersecting);
+    e.isIntersecting ? live.add(e.target) : live.delete(e.target);
+    tick();
+  }), { threshold: .35 });
+  slides.forEach(s => liveObs.observe(s));
+
+  // активная точка навигации
+  const spy = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) dots.forEach((d, i) => d.classList.toggle('on', slides[i] === e.target));
+  }), { rootMargin: '-45% 0px -45% 0px' });
+  slides.forEach(s => spy.observe(s));
+
+  // параллакс
+  let raf = 0;
+  function tick() {
+    if (raf || still) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      const vh = innerHeight;
+      for (const s of slides) {
+        const r = s.getBoundingClientRect();
+        if (r.bottom < -100 || r.top > vh + 100) continue;
+        const p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - vh / 2) / vh));
+        s.style.setProperty('--p', p.toFixed(4));
+      }
+    });
+  }
+  addEventListener('scroll', tick, { passive: true });
+  addEventListener('resize', tick);
+  tick();
+
+  // снег
+  document.querySelectorAll('.snow').forEach(cv => {
+    if (still) return;
+    const slide = cv.closest('.slide'), ctx = cv.getContext('2d');
+    let w = 0, h = 0, flakes = [];
+    const size = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      w = cv.clientWidth; h = cv.clientHeight;
+      cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.round(Math.min(110, w / 12));
+      flakes = Array.from({ length: n }, () => ({
+        x: Math.random() * w, y: Math.random() * h, r: .6 + Math.random() * 2.2 * (w / 1400 + .4),
+        s: .25 + Math.random() * .8, d: Math.random() * Math.PI * 2, o: .35 + Math.random() * .5
+      }));
+    };
+    size(); addEventListener('resize', size);
+    let last = performance.now();
+    const loop = t => {
+      const dt = Math.min(50, t - last) / 16.7; last = t;
+      if (slide.classList.contains('live')) {
+        ctx.clearRect(0, 0, w, h);
+        for (const f of flakes) {
+          f.d += .012 * dt; f.y += f.s * dt * (w / 900 + .3); f.x += Math.sin(f.d) * .35 * dt;
+          if (f.y > h + 5) { f.y = -5; f.x = Math.random() * w; }
+          ctx.globalAlpha = f.o; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.283); ctx.fillStyle = '#fff'; ctx.fill();
+        }
+      }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  });
+
+  // клавиши
+  addEventListener('keydown', e => {
+    const k = e.key;
+    if (!['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp'].includes(k)) return;
+    const y = scrollY + innerHeight * .5;
+    let cur = slides.findIndex(s => s.offsetTop <= y && s.offsetTop + s.offsetHeight > y);
+    if (cur < 0) cur = 0;
+    const next = Math.max(0, Math.min(slides.length - 1, cur + (k === 'ArrowDown' || k === 'PageDown' ? 1 : -1)));
+    e.preventDefault();
+    slides[next].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+})();
+</script>
+</body>
+</html>
