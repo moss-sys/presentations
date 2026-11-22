@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Праздники на льду · Охта Парк</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: #fff; }
+  body { margin: 0; background: #fff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+  .frame { position: relative; width: 100%; container-type: inline-size; overflow: hidden; }
+  .lay, .mid, .link, .frame canvas, .frame svg, .station, .gl, .skates { position: absolute; }
+  .lay, .mid, .frame canvas, .frame svg, .station, .gl, .skates { pointer-events: none; }
+  .frame canvas, .frame svg { inset: 0; width: 100%; height: 100%; }
+  .frame img { display: block; user-select: none; -webkit-user-drag: none; }
+
+  .mid .anim { position: absolute; inset: 0; will-change: transform; }
+  .mid img { width: 100%; height: 100%; }
+  .slide:not(.live) .anim { animation-play-state: paused; }
+  .mv-sway .anim, .mv-sway2 .anim { animation: sway 6s ease-in-out infinite; }
+  .mv-sway2 .anim { animation-duration: 7.5s; animation-delay: -2s; animation-direction: reverse; }
+  @keyframes sway { 0%, 100% { transform: rotate(-1.4deg); } 50% { transform: rotate(1.6deg) translateY(-.8%); } }
+
+  /* снеговик на коньке и сидящий: голова */
+  .mv-rock .anim { animation: rock var(--dur, 4.8s) ease-in-out infinite; }
+  @keyframes rock { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg); } }
+  .mv-nod .anim { animation: nod 5.6s ease-in-out infinite; }
+  @keyframes nod { 0%, 100% { transform: rotate(-2.5deg); } 45% { transform: rotate(2deg); } 60% { transform: rotate(2.3deg); } }
+
+  /* фото: падают и проявляются */
+  .js .photo { opacity: 0; }
+  .slide.played .photo { animation: drop 1s cubic-bezier(.2,.75,.3,1.08) var(--d) both; }
+  .slide.played .photo img { animation: develop 1.8s ease-out calc(var(--d) + .35s) both; }
+  @keyframes drop {
+    0% { opacity: 0; transform: translate(-5%, -32%) rotate(-11deg) scale(1.1); }
+    35% { opacity: 1; }
+    65% { transform: translate(0, 1.2%) rotate(1.4deg) scale(1); }
+    82% { transform: translate(0, -.5%) rotate(-.4deg); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes develop {
+    0% { filter: sepia(.5) hue-rotate(170deg) saturate(.45) brightness(1.6) contrast(.5); }
+    100% { filter: sepia(0) hue-rotate(0deg) saturate(1) brightness(1) contrast(1); }
+  }
+
+  /* стикеры */
+  .js .stk .anim { opacity: 0; }
+  .slide.played .stk .anim { animation: slap .95s cubic-bezier(.3,.7,.35,1) var(--d) both; }
+  @keyframes slap {
+    0% { opacity: 0; transform: perspective(500px) translate(10%, -40%) rotate(var(--r)) scale(1.7);
+         filter: drop-shadow(0 2.2cqw 1.6cqw rgb(0 20 60 / .3)); }
+    45% { opacity: 1; transform: perspective(500px) rotate(1.5deg) scale(.92);
+          filter: drop-shadow(0 .2cqw .3cqw rgb(0 20 60 / .25)); }
+    62% { transform: perspective(500px) rotateX(14deg) rotate(-1deg) scale(1.04); }
+    78% { transform: perspective(500px) rotateX(-6deg) scale(.99); }
+    90% { transform: perspective(500px) rotateX(2deg) scale(1.005); }
+    100% { opacity: 1; transform: none; filter: drop-shadow(0 0 0 rgb(0 20 60 / 0)); }
+  }
+
+  /* блик и кромка по форме карточки */
+  .gl i { position: absolute; inset: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+  .gl .halo { background: rgb(150 196 255); opacity: 0; }
+  .gl.dark .halo { background: rgb(170 210 255); }
+  .gl .sheen { background: linear-gradient(112deg, transparent 0 40%, rgb(150 190 255 / .32) 45%,
+      rgb(255 255 255 / .8) 50%, rgb(150 190 255 / .32) 55%, transparent 60% 100%);
+    background-size: 300% 100%; background-position: 100% 0; mix-blend-mode: normal; }
+
+  /* заголовок: слова по очереди */
+  .word { transform-origin: 50% 60%; will-change: transform; }
+  .word img { width: 100%; height: 100%; }
+
+  /* коньки на шнурке */
+  .skates img { position: absolute; inset: 0; width: 100%; height: 100%; will-change: transform; }
+
+  /* дуга на фоне */
+  .arc .arc-rv { fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round; }
+  .arc .arc-t { opacity: 0; transition: opacity 3s ease; }
+  .arc .arc-head { fill: rgb(140 185 250); opacity: 0; }
+  .arc .arc-core { fill: #fff; }
+
+  /* иней на обложке */
+  .js .frost { background: rgb(228 238 249 / .92); }
+  .js .frost.drawn { background: none; }
+
+  /* след конька на обложке */
+  .trail .cut { fill: none; stroke: rgb(255 255 255 / .9); stroke-width: 2.2; stroke-linecap: round;
+    stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 0 3px rgb(200 230 255 / .9)); }
+  .trail .cut2 { stroke-width: 1.2; stroke: rgb(255 255 255 / .55); }
+  .slide.played .trail .cut { animation: carve 3.2s cubic-bezier(.45,.05,.3,1) forwards, fade 5s ease 4.2s forwards; }
+  .slide.played .trail .cut2 { animation-delay: .12s, 4.3s; }
+  @keyframes carve { to { stroke-dashoffset: 0; } }
+  @keyframes fade { to { opacity: .35; } }
+
+  /* маршрут на слайде 10 */
+  .route path { fill: none; stroke-linecap: round; }
+  .route .rt-glow { stroke: rgb(255 255 255 / .9); stroke-width: 7; stroke-dasharray: 1; stroke-dashoffset: 1;
+    filter: drop-shadow(0 0 4px rgb(120 170 255 / .8)); opacity: .55; }
+  .route .rt-mask { display: none; }
+  .route .rt-dash { stroke: #2f5fd8; stroke-width: 3; stroke-dasharray: 2 9; }
+  .route .rt-reveal { stroke: #fff; stroke-width: 14; stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .slide.played .route .rt-glow, .slide.played .route .rt-reveal { animation: carve 3.4s cubic-bezier(.5,0,.4,1) .5s forwards; }
+  .station { border-radius: 1.85cqw; opacity: 0; }
+  .slide.played .station { animation: station 1.4s ease calc(.5s + var(--k) * .68s) forwards; }
+  @keyframes station {
+    0% { opacity: 0; box-shadow: 0 0 0 0 rgb(120 170 255 / 0); }
+    30% { opacity: 1; box-shadow: 0 0 0 .3cqw rgb(255 255 255 / .95), 0 0 3cqw .6cqw rgb(110 160 255 / .8); }
+    100% { opacity: 1; box-shadow: 0 0 0 .15cqw rgb(255 255 255 / .6), 0 0 1.2cqw rgb(110 160 255 / .35); }
+  }
+
+  .link { display: block; border-radius: 99px; transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s; pointer-events: auto; }
+  @media (hover: hover) { .link:hover { transform: scale(1.04); box-shadow: 0 0 2.4cqw rgba(214,240,40,.7); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+    .js .frost, .snow, .arc-head { display: none; }
+    .js .photo, .js .stk .anim { opacity: 1; }
+    .trail .cut, .route .rt-glow, .route .rt-reveal { stroke-dashoffset: 0; }
+    .station { opacity: 0; }
+  }
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+<main>
+  <section class="slide dark" id="s1">
+    <div class="frame" role="img" aria-label="Праздники на льду" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s1-l0.webp?v=53aade24" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="mid mv-rock" style="left:65.9259%;top:41.0544%;width:22.2963%;height:58.2537%"><div class="anim" style="transform-origin:54.98% 99.77%;--dur:4.8s"><img src="img/s1-rock0.webp?v=3e5417a1" alt=""></div></div>
+      <svg class="trail" viewBox="0 0 1080 607" preserveAspectRatio="none" aria-hidden="true"><path class="cut" pathLength="1" d="M -20 585 C 90 560, 180 470, 300 478 C 420 486, 470 560, 400 578 C 330 596, 300 520, 380 492 C 470 462, 600 520, 690 560 C 730 578, 760 588, 790 590"/><path class="cut cut2" pathLength="1" d="M -20 585 C 90 560, 180 470, 300 478 C 420 486, 470 560, 400 578 C 330 596, 300 520, 380 492 C 470 462, 600 520, 690 560 C 730 578, 760 588, 790 590" transform="translate(0 3.2)"/></svg>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide" id="s2">
+    <div class="frame" role="img" aria-label="У каждого праздника свой сценарий" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s2-l0.webp?v=a72a64a6" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <svg class="arc" viewBox="0 0 1080 607" preserveAspectRatio="none" aria-hidden="true"><defs><mask id="am2" maskUnits="userSpaceOnUse" x="-600" y="-400" width="2400" height="1500"><path class="arc-rv" d="M 1044.9 88.0 L 1058.3 95.1 L 1068.9 101.2 L 1057.9 90.8 L 1045.2 82.6 L 1031.5 76.1 L 1017.3 70.7 L 1002.8 66.3 L 988.2 62.1 L 973.5 58.7 L 958.7 55.4 L 943.8 52.7 L 928.8 50.1 L 913.8 47.8 L 898.7 46.3 L 883.6 44.7 L 868.5 43.8 L 853.4 43.0 L 838.2 42.5 L 823.0 42.8 L 807.9 43.0 L 792.7 43.9 L 777.6 44.9 L 762.5 46.1 L 747.4 47.7 L 732.4 49.7 L 717.3 51.7 L 702.4 54.2 L 687.4 56.7 L 672.5 59.4 L 657.6 62.4 L 642.8 65.5 L 628.0 68.9 L 613.2 72.3 L 598.5 76.0 L 583.8 79.8 L 569.1 83.7 L 554.6 87.9 L 540.0 92.1 L 525.5 96.6 L 511.1 101.2 L 496.6 105.8 L 482.3 110.8 L 468.0 115.8 L 453.7 121.0 L 439.5 126.3 L 425.4 131.8 L 411.3 137.6 L 397.3 143.3 L 383.4 149.3 L 369.5 155.5 L 355.7 161.8 L 342.0 168.2 L 328.4 174.9 L 314.8 181.7 L 301.4 188.8 L 288.0 195.9 L 274.6 203.1 L 261.4 210.5 L 248.2 218.1 L 235.2 225.8 L 222.2 233.6 L 209.3 241.6 L 196.5 249.8 L 183.8 258.1 L 171.2 266.5 L 158.7 275.2 L 146.4 284.0 L 134.3 293.1 L 122.3 302.4 L 110.6 312.0 L 99.1 322.0 L 87.9 332.2 L 77.2 342.9 L 67.1 354.3 L 57.6 366.1 L 49.0 378.6 L 41.7 391.9 L 35.7 405.8 L 32.0 420.5 L 31.7 435.5 L 35.7 450.1 L 43.2 463.2 L 53.8 474.1 L 66.3 482.7 L 80.2 488.7 L 94.9 492.5 L 109.9 494.3 L 125.1 494.5 L 140.1 493.0 L 155.1 490.4 L 169.8 486.6 L 184.2 482.0 L 198.4 476.5 L 212.1 470.0 L 225.4 462.8 L 238.3 454.7 L 250.7 446.0 L 262.6 436.6 L 273.8 426.4 L 284.3 415.5 L 294.0 403.8 L 303.1 391.7 L 311.5 379.1 L 319.3 366.1 L 326.4 352.7 L 332.6 338.8 L 337.8 324.6 L 342.0 310.0 L 345.0 295.1 L 346.9 280.1 L 347.3 264.9 L 346.4 249.8 L 343.8 234.9 L 339.4 220.4 L 333.0 206.6 L 324.5 194.1 L 313.8 183.4 L 301.7 174.2 L 288.8 166.3 L 275.0 159.9 L 260.8 154.8 L 246.1 151.2 L 231.0 149.4 L 215.8 149.0 L 200.7 149.9 L 185.7 152.0 L 170.8 154.8 L 156.0 158.4 L 141.5 162.6 L 127.1 167.6 L 113.1 173.2 L 99.3 179.6 L 85.8 186.5 L 72.6 193.9 L 59.6 201.8 L 47.0 210.2 L 34.6 219.0 L 22.5 228.1 L 10.6 237.5 L -0.8 247.5 L -11.8 258.0 L -22.6 268.6 L -32.9 279.8 L -43.1 290.9 L -52.9 302.5 L -62.4 314.4 L -71.9 326.1 L -81.0 338.3 L -90.1 350.4 L -98.8 362.8 L -107.7 375.1 L -116.2 387.7 L -124.7 400.2 L -133.1 412.8 L -141.6 425.4 L -149.5 438.4 L -157.2 451.4 L -164.5 464.7 L -159.5 458.7" stroke-width="143"/></mask><filter id="ab2" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="5"/></filter></defs><g mask="url(#am2)"><image href="img/s2-arc.webp?v=b800c9dd" width="1080" height="607" preserveAspectRatio="none"/><image class="arc-t" href="img/s2-arct.webp?v=3d6f407b" width="1080" height="607" preserveAspectRatio="none"/></g><circle class="arc-head" r="9" filter="url(#ab2)"/><circle class="arc-head arc-core" r="3.2"/></svg>
+      <div class="mid word" style="left:6.7037%;top:16.7381%;width:39.6296%;height:9.2916%" data-k="0"><img src="img/s2-w0.webp?v=fdc10757" alt=""></div><div class="mid word" style="left:6.9259%;top:26.0956%;width:43.0000%;height:16.9357%" data-k="1"><img src="img/s2-w1.webp?v=796095eb" alt=""></div><div class="mid word" style="left:6.9259%;top:42.7677%;width:38.0000%;height:11.2026%" data-k="2"><img src="img/s2-w2.webp?v=62bbc0f8" alt=""></div>
+      <img class="lay" src="img/s2-l1.webp?v=ae042418" alt="" style="left:7.1914%;top:7.7979%;width:92.8086%;height:73.9703%">
+      <div class="gl" style="left:54.5370%;top:15.4860%;width:42.5000%;height:30.4778%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s2-g6-h.png?v=f7d41afc);mask-image:url(img/s2-g6-h.png?v=f7d41afc)"></i><i class="sheen" style="-webkit-mask-image:url(img/s2-g6-m.png?v=c57eb2b6);mask-image:url(img/s2-g6-m.png?v=c57eb2b6)"></i></div>
+      <div class="gl" style="left:54.5370%;top:50.0824%;width:42.5000%;height:30.4778%" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s2-g8-h.png?v=f7d41afc);mask-image:url(img/s2-g8-h.png?v=f7d41afc)"></i><i class="sheen" style="-webkit-mask-image:url(img/s2-g8-m.png?v=c57eb2b6);mask-image:url(img/s2-g8-m.png?v=c57eb2b6)"></i></div>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide dark" id="s3">
+    <div class="frame" role="img" aria-label="Четыре сценария, много впечатлений" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s3-l0.webp?v=bbdc4519" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="gl dark" style="left:5.9259%;top:35.9143%;width:41.5741%;height:58.1549%" data-k="0"><i class="halo" style="-webkit-mask-image:url(img/s3-g5-h.png?v=c50bf199);mask-image:url(img/s3-g5-h.png?v=c50bf199)"></i><i class="sheen" style="-webkit-mask-image:url(img/s3-g5-m.png?v=728ac40b);mask-image:url(img/s3-g5-m.png?v=728ac40b)"></i></div>
+      <div class="gl dark" style="left:51.2963%;top:35.9143%;width:41.5741%;height:58.1549%" data-k="1"><i class="halo" style="-webkit-mask-image:url(img/s3-g7-h.png?v=c50bf199);mask-image:url(img/s3-g7-h.png?v=c50bf199)"></i><i class="sheen" style="-webkit-mask-image:url(img/s3-g7-m.png?v=728ac40b);mask-image:url(img/s3-g7-m.png?v=728ac40b)"></i></div>
+      <div class="mid mv-rock" style="left:32.7037%;top:22.8007%;width:17.0370%;height:35.1895%"><div class="anim" style="transform-origin:61.96% 99.06%;--dur:4.2s"><img src="img/s3-rock0.webp?v=2bd69ac8" alt=""></div></div>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide dark" id="s4">
+    <div class="frame" role="img" aria-label="Six Seven Party и Ледовые старты" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s4-l0.webp?v=ab1cb00d" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="gl dark" style="left:5.9259%;top:9.5552%;width:41.5741%;height:74.2998%" data-k="0"><i class="halo" style="-webkit-mask-image:url(img/s4-g3-h.png?v=81f1e668);mask-image:url(img/s4-g3-h.png?v=81f1e668)"></i><i class="sheen" style="-webkit-mask-image:url(img/s4-g3-m.png?v=a5c96a0e);mask-image:url(img/s4-g3-m.png?v=a5c96a0e)"></i></div>
+      <div class="gl dark" style="left:51.2963%;top:9.5552%;width:41.5741%;height:74.2998%" data-k="1"><i class="halo" style="-webkit-mask-image:url(img/s4-g5-h.png?v=81f1e668);mask-image:url(img/s4-g5-h.png?v=81f1e668)"></i><i class="sheen" style="-webkit-mask-image:url(img/s4-g5-m.png?v=a5c96a0e);mask-image:url(img/s4-g5-m.png?v=a5c96a0e)"></i></div>
+      <div class="skates" style="left:82.2222%;top:45.7848%;width:21.2963%;height:50.4404%"><img class="sk-back" src="img/s4-sk-back.webp?v=a1606c9e" alt="" style="transform-origin:47.65% 12.09%"><img class="sk-front" src="img/s4-sk-front.webp?v=cef32592" alt="" style="transform-origin:47.65% 12.09%"><img class="sk-bow" src="img/s4-sk-bow.webp?v=87c97a99" alt="" style="transform-origin:47.65% 12.09%"></div>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide" id="s5">
+    <div class="frame" role="img" aria-label="Новый год выходит на лёд" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s5-l0.webp?v=a72a64a6" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <svg class="arc" viewBox="0 0 1080 607" preserveAspectRatio="none" aria-hidden="true"><defs><mask id="am5" maskUnits="userSpaceOnUse" x="-600" y="-400" width="2400" height="1500"><path class="arc-rv" d="M 1013.9 124.0 L 1027.3 131.1 L 1037.9 137.2 L 1026.9 126.8 L 1014.2 118.6 L 1000.5 112.1 L 986.3 106.7 L 971.8 102.3 L 957.2 98.1 L 942.5 94.7 L 927.7 91.4 L 912.8 88.7 L 897.8 86.1 L 882.8 83.8 L 867.7 82.3 L 852.6 80.7 L 837.5 79.8 L 822.4 79.0 L 807.2 78.5 L 792.0 78.8 L 776.9 79.0 L 761.7 79.9 L 746.6 80.9 L 731.5 82.1 L 716.4 83.7 L 701.4 85.7 L 686.3 87.7 L 671.4 90.2 L 656.4 92.7 L 641.5 95.4 L 626.6 98.4 L 611.8 101.5 L 597.0 104.9 L 582.2 108.3 L 567.5 112.0 L 552.8 115.8 L 538.1 119.7 L 523.6 123.9 L 509.0 128.1 L 494.5 132.6 L 480.1 137.2 L 465.6 141.8 L 451.3 146.8 L 437.0 151.8 L 422.7 157.0 L 408.5 162.3 L 394.4 167.8 L 380.3 173.6 L 366.3 179.3 L 352.4 185.3 L 338.5 191.5 L 324.7 197.8 L 311.0 204.2 L 297.4 210.9 L 283.8 217.7 L 270.4 224.8 L 257.0 231.9 L 243.6 239.1 L 230.4 246.5 L 217.2 254.1 L 204.2 261.8 L 191.2 269.6 L 178.3 277.6 L 165.5 285.8 L 152.8 294.1 L 140.2 302.5 L 127.7 311.2 L 115.4 320.0 L 103.3 329.1 L 91.3 338.4 L 79.6 348.0 L 68.1 358.0 L 56.9 368.2 L 46.2 378.9 L 36.1 390.3 L 26.6 402.1 L 18.0 414.6 L 10.7 427.9 L 4.7 441.8 L 1.0 456.5 L 0.7 471.5 L 4.7 486.1 L 12.2 499.2 L 22.8 510.1 L 35.3 518.7 L 49.2 524.7 L 63.9 528.5 L 78.9 530.3 L 94.1 530.5 L 109.1 529.0 L 124.1 526.4 L 138.8 522.6 L 153.2 518.0 L 167.4 512.5 L 181.1 506.0 L 194.4 498.8 L 207.3 490.7 L 219.7 482.0 L 231.6 472.6 L 242.8 462.4 L 253.3 451.5 L 263.0 439.8 L 272.1 427.7 L 280.5 415.1 L 288.3 402.1 L 295.4 388.7 L 301.6 374.8 L 306.8 360.6 L 311.0 346.0 L 314.0 331.1 L 315.9 316.1 L 316.3 300.9 L 315.4 285.8 L 312.8 270.9 L 308.4 256.4 L 302.0 242.6 L 293.5 230.1 L 282.8 219.4 L 270.7 210.2 L 257.8 202.3 L 244.0 195.9 L 229.8 190.8 L 215.1 187.2 L 200.0 185.4 L 184.8 185.0 L 169.7 185.9 L 154.7 188.0 L 139.8 190.8 L 125.0 194.4 L 110.5 198.6 L 96.1 203.6 L 82.1 209.2 L 68.3 215.6 L 54.8 222.5 L 41.6 229.9 L 28.6 237.8 L 16.0 246.2 L 3.6 255.0 L -8.5 264.1 L -20.4 273.5 L -31.8 283.5 L -42.8 294.0 L -53.6 304.6 L -63.9 315.8 L -74.1 326.9 L -83.9 338.5 L -93.4 350.4 L -102.9 362.1 L -112.0 374.3 L -121.1 386.4 L -129.8 398.8 L -138.7 411.1 L -147.2 423.7 L -155.7 436.2 L -164.1 448.8 L -172.6 461.4 L -180.5 474.4 L -188.2 487.4 L -195.5 500.7 L -190.5 494.7" stroke-width="143"/></mask><filter id="ab5" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="5"/></filter></defs><g mask="url(#am5)"><image href="img/s5-arc.webp?v=fcd99590" width="1080" height="607" preserveAspectRatio="none"/><image class="arc-t" href="img/s5-arct.webp?v=067fa7b3" width="1080" height="607" preserveAspectRatio="none"/></g><circle class="arc-head" r="9" filter="url(#ab5)"/><circle class="arc-head arc-core" r="3.2"/></svg>
+      <div class="mid mv-sway" style="left:60.2963%;top:1.2521%;width:31.0741%;height:60.9555%;"><div class="anim" style="transform-origin:50% 8%"><img src="img/s5-ph0.webp?v=70039f4d" alt=""></div></div>
+      <div class="mid mv-sway2" style="left:68.8889%;top:39.5387%;width:30.1481%;height:58.8468%;"><div class="anim" style="transform-origin:50% 8%"><img src="img/s5-ph1.webp?v=ad831e2a" alt=""></div></div>
+      <div class="mid word" style="left:4.2222%;top:14.5634%;width:34.4444%;height:14.6952%" data-k="0"><img src="img/s5-w0.webp?v=033cea7a" alt=""></div><div class="mid word" style="left:41.6296%;top:14.5634%;width:19.2963%;height:14.6952%" data-k="1"><img src="img/s5-w1.webp?v=517a1d32" alt=""></div><div class="mid word" style="left:4.2222%;top:28.8633%;width:47.7407%;height:13.5091%" data-k="2"><img src="img/s5-w2.webp?v=b0efc732" alt=""></div><div class="mid word" style="left:4.2222%;top:42.1087%;width:13.3333%;height:12.1911%" data-k="3"><img src="img/s5-w3.webp?v=51eee8de" alt=""></div><div class="mid word" style="left:20.3333%;top:42.1087%;width:19.4074%;height:12.1911%" data-k="4"><img src="img/s5-w4.webp?v=3ae24489" alt=""></div>
+      <img class="lay" src="img/s5-l1.webp?v=9f72a7bc" alt="" style="left:4.1667%;top:55.5739%;width:42.6235%;height:28.0615%">
+      <div class="gl" style="left:4.1667%;top:55.5189%;width:42.6389%;height:9.9671%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s5-g8-h.png?v=801143a6);mask-image:url(img/s5-g8-h.png?v=801143a6)"></i><i class="sheen" style="-webkit-mask-image:url(img/s5-g8-m.png?v=240009a6);mask-image:url(img/s5-g8-m.png?v=240009a6)"></i></div>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide" id="s6">
+    <div class="frame" role="img" aria-label="Продумали главное, осталось веселиться" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s6-l0.webp?v=a72a64a6" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="mid word" style="left:3.9259%;top:7.9077%;width:38.1111%;height:8.1713%" data-k="0"><img src="img/s6-w0.webp?v=ddc04331" alt=""></div><div class="mid word" style="left:44.6667%;top:7.9077%;width:28.5926%;height:8.1713%" data-k="1"><img src="img/s6-w1.webp?v=b5183170" alt=""></div><div class="mid word" style="left:3.9259%;top:16.6063%;width:34.0370%;height:7.0511%" data-k="2"><img src="img/s6-w2.webp?v=8b74cd3b" alt=""></div><div class="mid word" style="left:40.5185%;top:16.6063%;width:41.0000%;height:7.0511%" data-k="3"><img src="img/s6-w3.webp?v=79cb1a95" alt=""></div>
+      <img class="lay" src="img/s6-l1.webp?v=20dffd1e" alt="" style="left:3.6420%;top:32.6194%;width:93.8889%;height:61.0104%">
+      <div class="gl" style="left:3.9815%;top:47.6112%;width:42.5000%;height:44.8105%" data-k="0"><i class="halo" style="-webkit-mask-image:url(img/s6-g4-h.png?v=a0d5f982);mask-image:url(img/s6-g4-h.png?v=a0d5f982)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g4-m.png?v=9f32fb28);mask-image:url(img/s6-g4-m.png?v=9f32fb28)"></i></div>
+      <div class="gl" style="left:48.6111%;top:32.6194%;width:23.7037%;height:28.1713%" data-k="1"><i class="halo" style="-webkit-mask-image:url(img/s6-g6-h.png?v=86dc940d);mask-image:url(img/s6-g6-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g6-m.png?v=f7436354);mask-image:url(img/s6-g6-m.png?v=f7436354)"></i></div>
+      <div class="gl" style="left:73.5185%;top:32.6194%;width:23.7037%;height:28.1713%" data-k="2"><i class="halo" style="-webkit-mask-image:url(img/s6-g8-h.png?v=86dc940d);mask-image:url(img/s6-g8-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g8-m.png?v=f7436354);mask-image:url(img/s6-g8-m.png?v=f7436354)"></i></div>
+      <div class="gl" style="left:48.6111%;top:64.2504%;width:23.7037%;height:28.1713%" data-k="3"><i class="halo" style="-webkit-mask-image:url(img/s6-g10-h.png?v=86dc940d);mask-image:url(img/s6-g10-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g10-m.png?v=f7436354);mask-image:url(img/s6-g10-m.png?v=f7436354)"></i></div>
+      <div class="gl" style="left:73.5185%;top:64.2504%;width:23.7037%;height:28.1713%" data-k="4"><i class="halo" style="-webkit-mask-image:url(img/s6-g12-h.png?v=86dc940d);mask-image:url(img/s6-g12-h.png?v=86dc940d)"></i><i class="sheen" style="-webkit-mask-image:url(img/s6-g12-m.png?v=f7436354);mask-image:url(img/s6-g12-m.png?v=f7436354)"></i></div>
+      <div class="mid mv-nod" style="left:11.0303%;top:22.2115%;width:28.8829%;height:14.8949%"><div class="anim" style="transform-origin:47.37% 97.89%"><img src="img/s6-head.webp?v=45df2760" alt=""></div></div>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide dark" id="s7">
+    <div class="frame" role="img" aria-label="Ваш праздник, ваш формат: цены" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s7-l0.webp?v=ddc3d09e" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="gl dark" style="left:5.9259%;top:36.7381%;width:41.5741%;height:56.1779%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s7-g5-h.png?v=3737f745);mask-image:url(img/s7-g5-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s7-g5-m.png?v=02c12123);mask-image:url(img/s7-g5-m.png?v=02c12123)"></i></div>
+      <div class="gl dark" style="left:51.2963%;top:36.7381%;width:41.5741%;height:56.1779%" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s7-g7-h.png?v=3737f745);mask-image:url(img/s7-g7-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s7-g7-m.png?v=02c12123);mask-image:url(img/s7-g7-m.png?v=02c12123)"></i></div>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide" id="s8">
+    <div class="frame" role="img" aria-label="Ёлка на льду: цены" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s8-l0.webp?v=a72a64a6" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <svg class="arc" viewBox="0 0 1080 607" preserveAspectRatio="none" aria-hidden="true"><defs><mask id="am8" maskUnits="userSpaceOnUse" x="-600" y="-400" width="2400" height="1500"><path class="arc-rv" d="M 1027.9 125.0 L 1041.3 132.1 L 1051.9 138.2 L 1040.9 127.8 L 1028.2 119.6 L 1014.5 113.1 L 1000.3 107.7 L 985.8 103.3 L 971.2 99.1 L 956.5 95.7 L 941.7 92.4 L 926.8 89.7 L 911.8 87.1 L 896.8 84.8 L 881.7 83.3 L 866.6 81.7 L 851.5 80.8 L 836.4 80.0 L 821.2 79.5 L 806.0 79.8 L 790.9 80.0 L 775.7 80.9 L 760.6 81.9 L 745.5 83.1 L 730.4 84.7 L 715.4 86.7 L 700.3 88.7 L 685.4 91.2 L 670.4 93.7 L 655.5 96.4 L 640.6 99.4 L 625.8 102.5 L 611.0 105.9 L 596.2 109.3 L 581.5 113.0 L 566.8 116.8 L 552.1 120.7 L 537.6 124.9 L 523.0 129.1 L 508.5 133.6 L 494.1 138.2 L 479.6 142.8 L 465.3 147.8 L 451.0 152.8 L 436.7 158.0 L 422.5 163.3 L 408.4 168.8 L 394.3 174.6 L 380.3 180.3 L 366.4 186.3 L 352.5 192.5 L 338.7 198.8 L 325.0 205.2 L 311.4 211.9 L 297.8 218.7 L 284.4 225.8 L 271.0 232.9 L 257.6 240.1 L 244.4 247.5 L 231.2 255.1 L 218.2 262.8 L 205.2 270.6 L 192.3 278.6 L 179.5 286.8 L 166.8 295.1 L 154.2 303.5 L 141.7 312.2 L 129.4 321.0 L 117.3 330.1 L 105.3 339.4 L 93.6 349.0 L 82.1 359.0 L 70.9 369.2 L 60.2 379.9 L 50.1 391.3 L 40.6 403.1 L 32.0 415.6 L 24.7 428.9 L 18.7 442.8 L 15.0 457.5 L 14.7 472.5 L 18.7 487.1 L 26.2 500.2 L 36.8 511.1 L 49.3 519.7 L 63.2 525.7 L 77.9 529.5 L 92.9 531.3 L 108.1 531.5 L 123.1 530.0 L 138.1 527.4 L 152.8 523.6 L 167.2 519.0 L 181.4 513.5 L 195.1 507.0 L 208.4 499.8 L 221.3 491.7 L 233.7 483.0 L 245.6 473.6 L 256.8 463.4 L 267.3 452.5 L 277.0 440.8 L 286.1 428.7 L 294.5 416.1 L 302.3 403.1 L 309.4 389.7 L 315.6 375.8 L 320.8 361.6 L 325.0 347.0 L 328.0 332.1 L 329.9 317.1 L 330.3 301.9 L 329.4 286.8 L 326.8 271.9 L 322.4 257.4 L 316.0 243.6 L 307.5 231.1 L 296.8 220.4 L 284.7 211.2 L 271.8 203.3 L 258.0 196.9 L 243.8 191.8 L 229.1 188.2 L 214.0 186.4 L 198.8 186.0 L 183.7 186.9 L 168.7 189.0 L 153.8 191.8 L 139.0 195.4 L 124.5 199.6 L 110.1 204.6 L 96.1 210.2 L 82.3 216.6 L 68.8 223.5 L 55.6 230.9 L 42.6 238.8 L 30.0 247.2 L 17.6 256.0 L 5.5 265.1 L -6.4 274.5 L -17.8 284.5 L -28.8 295.0 L -39.6 305.6 L -49.9 316.8 L -60.1 327.9 L -69.9 339.5 L -79.4 351.4 L -88.9 363.1 L -98.0 375.3 L -107.1 387.4 L -115.8 399.8 L -124.7 412.1 L -133.2 424.7 L -141.7 437.2 L -150.1 449.8 L -158.6 462.4 L -166.5 475.4 L -174.2 488.4 L -181.5 501.7 L -176.5 495.7" stroke-width="143"/></mask><filter id="ab8" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="5"/></filter></defs><g mask="url(#am8)"><image href="img/s8-arc.webp?v=44361064" width="1080" height="607" preserveAspectRatio="none"/><image class="arc-t" href="img/s8-arct.webp?v=de26b0a2" width="1080" height="607" preserveAspectRatio="none"/></g><circle class="arc-head" r="9" filter="url(#ab8)"/><circle class="arc-head arc-core" r="3.2"/></svg>
+      <img class="lay" src="img/s8-l1.webp?v=6db25649" alt="" style="left:5.6173%;top:6.6447%;width:87.5617%;height:86.3811%">
+      <div class="gl" style="left:5.9259%;top:28.9951%;width:41.5741%;height:56.1779%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s8-g4-h.png?v=3737f745);mask-image:url(img/s8-g4-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s8-g4-m.png?v=02c12123);mask-image:url(img/s8-g4-m.png?v=02c12123)"></i></div>
+      <div class="gl" style="left:51.2963%;top:28.9951%;width:41.5741%;height:56.1779%" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s8-g6-h.png?v=3737f745);mask-image:url(img/s8-g6-h.png?v=3737f745)"></i><i class="sheen" style="-webkit-mask-image:url(img/s8-g6-m.png?v=02c12123);mask-image:url(img/s8-g6-m.png?v=02c12123)"></i></div>
+      <div class="mid stk" style="left:78.9630%;top:19.2422%;width:18.2963%;height:16.4745%;--r:-13deg;--d:0.55s"><div class="anim"><img src="img/s8-st0.webp?v=6cf9e253" alt=""></div></div>
+      <img class="lay" src="img/s8-l2.webp?v=5a1f0724" alt="" style="left:3.3333%;top:23.8880%;width:47.3457%;height:8.6766%">
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide" id="s9">
+    <div class="frame" role="img" aria-label="Тимбилдинг «Ледовая команда»" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s9-l0.webp?v=a72a64a6" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <svg class="arc" viewBox="0 0 1080 607" preserveAspectRatio="none" aria-hidden="true"><defs><mask id="am9" maskUnits="userSpaceOnUse" x="-600" y="-400" width="2400" height="1500"><path class="arc-rv" d="M -220.9 14.4 L -235.6 17.7 L -249.9 22.9 L -263.1 30.3 L -266.9 30.5 L -256.1 19.9 L -243.6 11.4 L -229.5 5.9 L -215.1 1.1 L -200.6 -3.1 L -185.9 -6.8 L -171.1 -10.2 L -156.2 -13.1 L -141.2 -15.1 L -126.2 -17.4 L -111.1 -18.7 L -96.0 -20.0 L -80.9 -20.7 L -65.7 -21.1 L -50.6 -21.0 L -35.4 -21.0 L -20.3 -20.2 L -5.2 -19.5 L 9.9 -18.1 L 25.0 -16.5 L 40.1 -14.8 L 55.0 -12.6 L 70.1 -10.6 L 85.0 -7.9 L 99.9 -5.1 L 114.8 -2.5 L 129.6 0.7 L 144.4 4.1 L 159.2 7.3 L 173.9 11.0 L 188.7 14.6 L 203.3 18.6 L 217.8 22.8 L 232.4 26.9 L 246.9 31.3 L 261.3 36.0 L 275.8 40.5 L 290.2 45.4 L 304.5 50.2 L 318.8 55.4 L 333.0 60.6 L 347.2 66.1 L 361.2 71.8 L 375.3 77.4 L 389.2 83.5 L 403.1 89.4 L 416.9 95.8 L 430.6 102.2 L 444.3 108.8 L 457.8 115.6 L 471.4 122.4 L 484.8 129.4 L 498.2 136.6 L 511.5 143.9 L 524.7 151.4 L 537.8 159.0 L 550.8 166.8 L 563.7 174.8 L 576.5 182.9 L 589.2 191.1 L 601.8 199.6 L 614.3 208.2 L 626.6 217.1 L 638.7 226.2 L 650.6 235.6 L 662.3 245.2 L 673.7 255.3 L 684.8 265.7 L 695.3 276.6 L 705.1 288.1 L 714.4 300.1 L 722.7 312.8 L 730.0 326.1 L 736.0 340.0 L 740.4 354.5 L 743.2 369.4 L 742.2 384.3 L 735.5 397.9 L 725.8 409.5 L 713.9 418.8 L 700.3 425.5 L 685.7 429.6 L 670.7 429.8 L 655.6 430.6 L 640.5 429.5 L 625.5 427.1 L 610.8 423.6 L 596.3 419.2 L 582.0 413.9 L 568.2 407.6 L 554.8 400.6 L 541.8 392.7 L 529.3 384.1 L 517.3 375.0 L 505.9 364.9 L 495.2 354.2 L 485.2 342.8 L 476.0 330.7 L 467.4 318.2 L 459.5 305.3 L 452.2 292.0 L 445.8 278.3 L 440.3 264.1 L 436.0 249.6 L 432.7 234.8 L 430.5 219.8 L 429.6 204.7 L 430.2 189.5 L 432.4 174.5 L 436.2 159.9 L 442.0 145.9 L 450.3 133.2 L 460.4 122.0 L 472.1 112.3 L 484.9 104.2 L 498.4 97.4 L 512.6 92.1 L 527.3 88.3 L 542.3 85.9 L 557.4 85.1 L 572.6 85.5 L 587.6 87.0 L 602.6 89.6 L 617.4 92.9 L 632.0 97.0 L 646.4 101.8 L 660.5 107.2 L 674.4 113.4 L 687.9 120.2 L 701.2 127.5 L 714.2 135.4 L 726.8 143.7 L 739.2 152.5 L 751.3 161.7 L 763.1 171.2 L 774.8 180.8 L 786.0 191.0 L 796.6 201.8 L 807.2 212.6 L 817.1 224.1 L 827.2 235.4 L 836.6 247.3 L 846.2 259.0 L 855.5 270.9 L 864.7 283.0 L 873.7 295.2 L 882.1 307.8 L 890.9 320.1 L 899.5 332.5 L 907.6 345.4 L 916.1 357.9 L 923.9 370.9 L 930.9 384.3 L 930.0 387.8 L 920.8 375.7" stroke-width="215"/></mask><filter id="ab9" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="5"/></filter></defs><g mask="url(#am9)"><image href="img/s9-arc.webp?v=6cd6321a" width="1080" height="607" preserveAspectRatio="none"/><image class="arc-t" href="img/s9-arct.webp?v=a56c3b35" width="1080" height="607" preserveAspectRatio="none"/></g><circle class="arc-head" r="9" filter="url(#ab9)"/><circle class="arc-head arc-core" r="3.2"/></svg>
+      <div class="mid mv-sway" style="left:69.1852%;top:0.5272%;width:30.8148%;height:60.8896%;"><div class="anim" style="transform-origin:50% 8%"><img src="img/s9-ph0.webp?v=ca87790c" alt=""></div></div>
+      <div class="mid mv-sway2" style="left:63.7037%;top:39.2092%;width:30.1481%;height:58.8468%;"><div class="anim" style="transform-origin:50% 8%"><img src="img/s9-ph1.webp?v=d4ba0358" alt=""></div></div>
+      <div class="mid word" style="left:4.2222%;top:17.0675%;width:65.5556%;height:12.1911%" data-k="0"><img src="img/s9-w0.webp?v=140a6e47" alt=""></div><div class="mid word" style="left:4.2963%;top:29.3245%;width:51.2593%;height:12.4547%" data-k="1"><img src="img/s9-w1.webp?v=dae3a9e3" alt=""></div><div class="mid word" style="left:4.2222%;top:41.8451%;width:53.4074%;height:12.4547%" data-k="2"><img src="img/s9-w2.webp?v=fc933bfe" alt=""></div>
+      <img class="lay" src="img/s9-l1.webp?v=ec332e5c" alt="" style="left:9.0741%;top:55.9033%;width:42.7469%;height:16.1999%">
+      <div class="skates" style="left:0.0926%;top:53.0288%;width:18.7963%;height:44.5191%"><img class="sk-back" src="img/s9-sk-back.webp?v=a1606c9e" alt="" style="transform-origin:47.65% 12.09%"><img class="sk-front" src="img/s9-sk-front.webp?v=cef32592" alt="" style="transform-origin:47.65% 12.09%"><img class="sk-bow" src="img/s9-sk-bow.webp?v=87c97a99" alt="" style="transform-origin:47.65% 12.09%"></div>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide dark" id="s10">
+    <div class="frame" role="img" aria-label="Маршрут команды" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s10-l0.webp?v=ae71b5c5" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="station" style="left:4.3519%;top:28.5008%;width:17.4074%;height:49.4234%;--k:0"></div>
+      <div class="station" style="left:22.7778%;top:28.5008%;width:17.5000%;height:49.4234%;--k:1"></div>
+      <div class="station" style="left:41.2037%;top:30.3130%;width:17.5926%;height:47.6112%;--k:2"></div>
+      <div class="station" style="left:59.8148%;top:28.5008%;width:17.4074%;height:49.4234%;--k:3"></div>
+      <div class="station" style="left:78.2407%;top:26.1944%;width:17.4074%;height:51.7298%;--k:4"></div>
+      <div class="mid mv-rock" style="left:69.6296%;top:60.4283%;width:14.9259%;height:38.8797%"><div class="anim" style="transform-origin:54.84% 99.49%;--dur:5.2s"><img src="img/s10-rock0.webp?v=e4d304df" alt=""></div></div>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide" id="s11">
+    <div class="frame" role="img" aria-label="Тимбилдинг на катке: цены" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s11-l0.webp?v=a72a64a6" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <svg class="arc" viewBox="0 0 1080 607" preserveAspectRatio="none" aria-hidden="true"><defs><mask id="am11" maskUnits="userSpaceOnUse" x="-600" y="-400" width="2400" height="1500"><path class="arc-rv" d="M 1162.9 135.0 L 1176.3 142.1 L 1186.9 148.2 L 1175.9 137.8 L 1163.2 129.6 L 1149.5 123.1 L 1135.3 117.7 L 1120.8 113.3 L 1106.2 109.1 L 1091.5 105.7 L 1076.7 102.4 L 1061.8 99.7 L 1046.8 97.1 L 1031.8 94.8 L 1016.7 93.3 L 1001.6 91.7 L 986.5 90.8 L 971.4 90.0 L 956.2 89.5 L 941.0 89.8 L 925.9 90.0 L 910.7 90.9 L 895.6 91.9 L 880.5 93.1 L 865.4 94.7 L 850.4 96.7 L 835.3 98.7 L 820.4 101.2 L 805.4 103.7 L 790.5 106.4 L 775.6 109.4 L 760.8 112.5 L 746.0 115.9 L 731.2 119.3 L 716.5 123.0 L 701.8 126.8 L 687.1 130.7 L 672.6 134.9 L 658.0 139.1 L 643.5 143.6 L 629.1 148.2 L 614.6 152.8 L 600.3 157.8 L 586.0 162.8 L 571.7 168.0 L 557.5 173.3 L 543.4 178.8 L 529.3 184.6 L 515.3 190.3 L 501.4 196.3 L 487.5 202.5 L 473.7 208.8 L 460.0 215.2 L 446.4 221.9 L 432.8 228.7 L 419.4 235.8 L 406.0 242.9 L 392.6 250.1 L 379.4 257.5 L 366.2 265.1 L 353.2 272.8 L 340.2 280.6 L 327.3 288.6 L 314.5 296.8 L 301.8 305.1 L 289.2 313.5 L 276.7 322.2 L 264.4 331.0 L 252.3 340.1 L 240.3 349.4 L 228.6 359.0 L 217.1 369.0 L 205.9 379.2 L 195.2 389.9 L 185.1 401.3 L 175.6 413.1 L 167.0 425.6 L 159.7 438.9 L 153.7 452.8 L 150.0 467.5 L 149.7 482.5 L 153.7 497.1 L 161.2 510.2 L 171.8 521.1 L 184.3 529.7 L 198.2 535.7 L 212.9 539.5 L 227.9 541.3 L 243.1 541.5 L 258.1 540.0 L 273.1 537.4 L 287.8 533.6 L 302.2 529.0 L 316.4 523.5 L 330.1 517.0 L 343.4 509.8 L 356.3 501.7 L 368.7 493.0 L 380.6 483.6 L 391.8 473.4 L 402.3 462.5 L 412.0 450.8 L 421.1 438.7 L 429.5 426.1 L 437.3 413.1 L 444.4 399.7 L 450.6 385.8 L 455.8 371.6 L 460.0 357.0 L 463.0 342.1 L 464.9 327.1 L 465.3 311.9 L 464.4 296.8 L 461.8 281.9 L 457.4 267.4 L 451.0 253.6 L 442.5 241.1 L 431.8 230.4 L 419.7 221.2 L 406.8 213.3 L 393.0 206.9 L 378.8 201.8 L 364.1 198.2 L 349.0 196.4 L 333.8 196.0 L 318.7 196.9 L 303.7 199.0 L 288.8 201.8 L 274.0 205.4 L 259.5 209.6 L 245.1 214.6 L 231.1 220.2 L 217.3 226.6 L 203.8 233.5 L 190.6 240.9 L 177.6 248.8 L 165.0 257.2 L 152.6 266.0 L 140.5 275.1 L 128.6 284.5 L 117.2 294.5 L 106.2 305.0 L 95.4 315.6 L 85.1 326.8 L 74.9 337.9 L 65.1 349.5 L 55.6 361.4 L 46.1 373.1 L 37.0 385.3 L 27.9 397.4 L 19.2 409.8 L 10.3 422.1 L 1.8 434.7 L -6.7 447.2 L -15.1 459.8 L -23.6 472.4 L -31.5 485.4 L -39.2 498.4 L -46.5 511.7 L -41.5 505.7" stroke-width="143"/></mask><filter id="ab11" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="5"/></filter></defs><g mask="url(#am11)"><image href="img/s11-arc.webp?v=73734f81" width="1080" height="607" preserveAspectRatio="none"/><image class="arc-t" href="img/s11-arct.webp?v=8a6f7fa9" width="1080" height="607" preserveAspectRatio="none"/></g><circle class="arc-head" r="9" filter="url(#ab11)"/><circle class="arc-head arc-core" r="3.2"/></svg>
+      <img class="lay" src="img/s11-l1.webp?v=5e2394d5" alt="" style="left:5.6173%;top:8.7864%;width:48.1173%;height:78.5832%">
+      <div class="gl" style="left:5.9259%;top:41.6804%;width:22.8704%;height:44.4811%" data-k="0" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s11-g5-h.png?v=513b19cf);mask-image:url(img/s11-g5-h.png?v=513b19cf)"></i><i class="sheen" style="-webkit-mask-image:url(img/s11-g5-m.png?v=db58a427);mask-image:url(img/s11-g5-m.png?v=db58a427)"></i></div>
+      <div class="gl" style="left:30.5556%;top:41.6804%;width:22.8704%;height:44.4811%" data-k="1" data-pulse><i class="halo" style="-webkit-mask-image:url(img/s11-g7-h.png?v=513b19cf);mask-image:url(img/s11-g7-h.png?v=513b19cf)"></i><i class="sheen" style="-webkit-mask-image:url(img/s11-g7-m.png?v=db58a427);mask-image:url(img/s11-g7-m.png?v=db58a427)"></i></div>
+      <div class="mid stk" style="left:42.4444%;top:35.0577%;width:13.8148%;height:12.0593%;--r:12deg;--d:0.55s"><div class="anim"><img src="img/s11-st0.webp?v=26a09d98" alt=""></div></div>
+      <img class="lay" src="img/s11-l2.webp?v=43a3bf1d" alt="" style="left:6.0494%;top:32.0154%;width:92.3765%;height:63.6463%">
+      <div class="mid mv-nod" style="left:53.4164%;top:3.6754%;width:45.4771%;height:30.6943%"><div class="anim" style="transform-origin:49.87% 98.36%"><img src="img/s11-head.webp?v=fbfc8d43" alt=""></div></div>
+      <canvas class="snow" data-col="[]"></canvas>
+    </div>
+  </section>
+  <section class="slide dark" id="s12">
+    <div class="frame" role="img" aria-label="Встретимся на льду. Контакты" style="aspect-ratio:1080.0/607.0">
+      <img class="lay" src="img/s12-l0.webp?v=1b4f7a34" alt="" style="left:0.0000%;top:0.0000%;width:100.0000%;height:100.0000%">
+      <div class="mid word" style="left:5.3333%;top:28.7974%;width:72.2963%;height:11.2685%" data-k="0"><img src="img/s12-w0.webp?v=7694194c" alt=""></div><div class="mid word" style="left:5.3333%;top:43.0972%;width:14.5556%;height:13.1796%" data-k="1"><img src="img/s12-w1.webp?v=03d0dfc7" alt=""></div><div class="mid word" style="left:22.9259%;top:43.0972%;width:26.8519%;height:13.1796%" data-k="2"><img src="img/s12-w2.webp?v=0def5d63" alt=""></div>
+      <img class="lay" src="img/s12-l1.webp?v=5a613142" alt="" style="left:5.6173%;top:7.9077%;width:78.3025%;height:90.4448%">
+      <div class="mid stk" style="left:5.5556%;top:70.9720%;width:35.1111%;height:10.9390%;--r:-13deg;--d:0.55s"><div class="anim"><img src="img/s12-st0.webp?v=73d28c13" alt=""></div></div>
+      <img class="lay" src="img/s12-l2.webp?v=d97571c9" alt="" style="left:41.8519%;top:71.0049%;width:20.2778%;height:10.8731%">
+      <canvas class="snow" data-col="[]"></canvas>
+      <a class="link" href="tel:+79214003709" aria-label="Позвонить +7 921 400-37-09" style="left:4.5%;top:70.0%;width:36.5%;height:13.0%"></a>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rnd = (a, b) => a + Math.random() * (b - a), TAU = Math.PI * 2;
+  const dprOf = () => Math.min(devicePixelRatio || 1, 2);
+  const ease = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+
+  // ---------- иней и оттаивание (обложка) ----------
+  function frostTexture(w, h) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d');
+    g.fillStyle = 'rgba(228,238,249,.92)'; g.fillRect(0, 0, w, h);
+    for (let i = 0; i < w * h / 90; i++) {
+      g.fillStyle = `rgba(255,255,255,${rnd(.05, .35)})`; g.fillRect(rnd(0, w), rnd(0, h), rnd(.6, 1.8), rnd(.6, 1.8));
+    }
+    g.lineCap = 'round';
+    const branch = (x, y, a, len, depth) => {
+      const x2 = x + Math.cos(a) * len, y2 = y + Math.sin(a) * len;
+      g.strokeStyle = `rgba(255,255,255,${.35 + depth * .12})`; g.lineWidth = Math.max(.5, depth * .55);
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x2, y2); g.stroke();
+      if (depth <= 0) return;
+      const n = 3 + (Math.random() * 3 | 0);
+      for (let i = 1; i <= n; i++) {
+        const t = i / (n + 1), px = x + (x2 - x) * t, py = y + (y2 - y) * t, l = len * rnd(.25, .45) * (1 - t * .5);
+        branch(px, py, a + .95, l, depth - 1); branch(px, py, a - .95, l, depth - 1);
+      }
+      branch(x2, y2, a + rnd(-.25, .25), len * .55, depth - 1);
+    };
+    const S = Math.max(w, h);
+    for (let i = 0; i < 26; i++) {
+      const side = i % 4, x = side === 0 ? 0 : side === 1 ? w : rnd(0, w), y = side === 2 ? 0 : side === 3 ? h : rnd(0, h);
+      branch(x, y, Math.atan2(h / 2 - y, w / 2 - x) + rnd(-.7, .7), S * rnd(.06, .14), 3);
+    }
+    for (let i = 0; i < 18; i++) branch(rnd(0, w), rnd(0, h), rnd(0, TAU), S * rnd(.02, .05), 2);
+    return c;
+  }
+  function thaw(slide) {
+    const cv = slide.querySelector('.frost'); if (!cv) return;
+    if (still) { cv.remove(); return; }
+    const dpr = Math.min(dprOf(), 1.5), w = Math.round(cv.clientWidth * dpr), h = Math.round(cv.clientHeight * dpr);
+    cv.width = w; cv.height = h; cv.classList.add('drawn');
+    const ctx = cv.getContext('2d'), tex = frostTexture(w, h);
+    const R = Math.hypot(w, h) * .62, cx = w * rnd(.42, .58), cy = h * rnd(.42, .58);
+    const wob = Array.from({ length: 7 }, () => [rnd(2, 7) | 0, rnd(0, TAU), rnd(.03, .09)]);
+    const t0 = performance.now() + 250, dur = 1900;
+    const S = 12, mk = document.createElement('canvas'); mk.width = Math.ceil(w / S); mk.height = Math.ceil(h / S);
+    const mc = mk.getContext('2d');
+    const step = now => {
+      const k = Math.max(0, Math.min(1, (now - t0) / dur)), e = k * k * (3 - 2 * k);
+      ctx.globalCompositeOperation = 'source-over'; ctx.clearRect(0, 0, w, h); ctx.globalAlpha = 1 - Math.max(0, k - .85) / .15;
+      ctx.drawImage(tex, 0, 0);
+      const r = R * e;
+      if (r > 1) {
+        mc.clearRect(0, 0, mk.width, mk.height); mc.fillStyle = '#fff'; mc.beginPath();
+        for (let i = 0; i <= 96; i++) {
+          const a = i / 96 * TAU; let m = 1;
+          for (const [f, p, amp] of wob) m += amp * Math.sin(a * f + p);
+          mc.lineTo((cx + Math.cos(a) * r * m) / S, (cy + Math.sin(a) * r * m) / S);
+        }
+        mc.fill();
+        ctx.globalCompositeOperation = 'destination-out'; ctx.globalAlpha = 1; ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(mk, 0, 0, mk.width * S, mk.height * S);
+      }
+      if (k < 1) requestAnimationFrame(step); else cv.remove();
+    };
+    requestAnimationFrame(step);
+  }
+
+  // ---------- блик по карточкам ----------
+  function shine(gl, delay, strong) {
+    const sheen = gl.querySelector('.sheen'), halo = gl.querySelector('.halo');
+    sheen.animate([{ backgroundPosition: '100% 0' }, { backgroundPosition: '0% 0' }],
+      { duration: strong ? 1150 : 1400, delay, easing: 'cubic-bezier(.45,.05,.35,1)' });
+    halo.animate([{ opacity: 0 }, { opacity: strong ? .95 : .55, offset: .4 }, { opacity: 0 }],
+      { duration: strong ? 1500 : 1700, delay, easing: 'ease-out' });
+  }
+  const pulseAt = new Map();
+  setInterval(() => {
+    if (still || document.hidden) return;
+    const now = performance.now();
+    for (const s of slides) {
+      if (!s.classList.contains('live') || !s.classList.contains('played')) continue;
+      const els = [...s.querySelectorAll('.gl[data-pulse]')]; if (!els.length) continue;
+      const st = pulseAt.get(s) || { t: now + 2500, i: 0 };
+      if (now >= st.t) { shine(els[st.i % els.length], 0, false); st.i++; st.t = now + rnd(3200, 4800); }
+      pulseAt.set(s, st);
+    }
+  }, 400);
+
+  // ---------- дуга: прорисовка вдоль осевой линии ----------
+  const arcs = new Map();
+  for (const svg of document.querySelectorAll('.arc')) {
+    const p = svg.querySelector('.arc-rv'), L = p.getTotalLength();
+    p.style.strokeDasharray = `${L} ${L + 10}`;
+    if (!still) { p.style.strokeDashoffset = L; svg.querySelector('.arc-t').style.opacity = 1; }
+    arcs.set(svg, { p, L });
+  }
+  function drawArc(svg) {
+    const { p, L } = arcs.get(svg), heads = svg.querySelectorAll('.arc-head'), tint = svg.querySelector('.arc-t');
+    const t0 = performance.now() + 150, dur = 2300;
+    const step = now => {
+      const k = Math.max(0, Math.min(1, (now - t0) / dur)), e = ease(k);
+      p.style.strokeDashoffset = L * (1 - e);
+      const pt = p.getPointAtLength(L * e);
+      heads.forEach(h => { h.setAttribute('cx', pt.x); h.setAttribute('cy', pt.y); h.style.opacity = k > 0 && k < 1 ? .95 : 0; });
+      if (k < 1) requestAnimationFrame(step); else tint.style.opacity = 0;
+    };
+    requestAnimationFrame(step);
+  }
+
+  // ---------- коньки: два маятника и бант ----------
+  let scrollV = 0;
+  const swings = [...document.querySelectorAll('.skates')].map(el => {
+    const back = el.querySelector('.sk-back'), front = el.querySelector('.sk-front'), bow = el.querySelector('.sk-bow');
+    const D = Math.PI / 180;
+    let c = rnd(-3, 3) * D, vc = 0, r = 0, vr = 0, b = 0, vb = 0, ph1 = rnd(0, TAU), ph2 = rnd(0, TAU);
+    const wc = TAU / 2.9, wr = TAU / 1.7, wb = TAU / .55;
+    return (dt, t) => {
+      if (!el.closest('.slide').classList.contains('live')) return;
+      // общий маятник: тихая собственная раскачка + подкачка прокруткой
+      const pump = Math.min(Math.abs(scrollV), 3500) * .0009 * Math.sign(vc || 1);
+      const ac = -wc * wc * c - .55 * vc + .045 * Math.sin(wc * t + ph1) + pump;
+      vc += ac * dt; c += vc * dt; c = Math.max(-14 * D, Math.min(14 * D, c));
+      // разница между коньками: свой ритм, упоры с отскоком (стук)
+      const ar = -wr * wr * r - .5 * vr + .06 * Math.sin(wr * .83 * t + ph2) - ac * .12;
+      vr += ar * dt; r += vr * dt;
+      if (r < -.9 * D) { r = -.9 * D; if (vr < -.02) vb += vr * 6; vr = -vr * .45; }
+      if (r > 1.2 * D) { r = 1.2 * D; vr = -vr * .4; }
+      // бант пружинит
+      const ab = -wb * wb * b - 6 * vb - ac * .35;
+      vb += ab * dt; b += vb * dt;
+      const deg = v => (v / D).toFixed(3);
+      back.style.transform = `rotate(${deg(c - r / 2)}deg)`;
+      front.style.transform = `rotate(${deg(c + r / 2)}deg)`;
+      bow.style.transform = `rotate(${deg(c * .25 + b)}deg) scale(${(1 + Math.min(.06, Math.abs(vb) * .25)).toFixed(4)})`;
+    };
+  });
+
+  // ---------- снег ----------
+  const pointer = { x: -1e4, y: -1e4, vx: 0, vy: 0, t: 0, on: false };
+  const setPointer = (x, y) => {
+    const now = performance.now(), dt = Math.max(8, now - pointer.t);
+    if (pointer.on) { pointer.vx = (x - pointer.x) / dt * 1000; pointer.vy = (y - pointer.y) / dt * 1000; }
+    pointer.x = x; pointer.y = y; pointer.t = now; pointer.on = true;
+  };
+  addEventListener('pointermove', e => setPointer(e.clientX, e.clientY), { passive: true });
+  addEventListener('touchmove', e => { const t = e.touches[0]; if (t) setPointer(t.clientX, t.clientY); }, { passive: true });
+  addEventListener('pointerleave', () => { pointer.on = false; pointer.x = pointer.y = -1e4; });
+  addEventListener('touchend', () => { pointer.on = false; pointer.x = pointer.y = -1e4; });
+
+  let lastScroll = scrollY, scrollDy = 0;
+
+  function snow(slide) {
+    const cv = slide.querySelector('.snow'), ctx = cv.getContext('2d');
+    const dark = slide.classList.contains('dark');
+    const cols = JSON.parse(cv.dataset.col).map(c => ({ ...c, n: c.y.length, h: new Float32Array(c.y.length) }));
+    let w = 0, h = 0, U = 1;
+    const size = () => {
+      const dpr = dprOf(); w = cv.clientWidth; h = cv.clientHeight; U = w / 1000;
+      cv.width = Math.max(1, w * dpr); cv.height = Math.max(1, h * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    size(); new ResizeObserver(size).observe(cv);
+    const HMAX = .0105;
+    for (const c of cols) for (let i = 0; i < c.n; i++) {
+      const t = i / (c.n - 1), edge = Math.min(1, Math.min(t, 1 - t) * 9);
+      c.h[i] = HMAX * edge * (.35 + .25 * Math.sin(t * 7 + c.x0 * 40) + .15 * Math.sin(t * 19));
+    }
+    const flakes = [];
+    const spawn = (x, y, vx, vy, clump) => {
+      if (flakes.length > 260) return;
+      const r = clump ? rnd(.9, 2.2) : rnd(.7, 2.6);
+      flakes.push({ x, y, vx, vy, r, clump, o: rnd(.55, .95), ph: rnd(0, TAU), vt: (clump ? 260 : rnd(28, 60) * (r / 2 + .6)) });
+    };
+    const colAt = (c, x) => { const t = (x / w - c.x0) / (c.x1 - c.x0); return t < 0 || t > 1 ? -1 : Math.round(t * (c.n - 1)); };
+    const surface = (c, i) => (c.y[i] - c.h[i]) * w;
+    const knock = (c, i, amount, vx, vy) => {
+      const take = Math.min(c.h[i], amount); if (take <= 0) return;
+      c.h[i] -= take;
+      const x = (c.x0 + (c.x1 - c.x0) * i / (c.n - 1)) * w, y = surface(c, i);
+      const count = Math.min(3, Math.ceil(take / .0012));
+      for (let k = 0; k < count; k++) spawn(x + rnd(-2, 2) * U, y - rnd(0, 3) * U, vx + rnd(-60, 60) * U, vy + rnd(-90, 10) * U, true);
+    };
+    const relax = c => {
+      const bw = (c.x1 - c.x0) / (c.n - 1), lim = bw * .55;
+      for (let pass = 0; pass < 2; pass++) for (let i = 0; i < c.n - 1; i++) {
+        const d = c.h[i] - c.h[i + 1];
+        if (Math.abs(d) > lim) { const m = (Math.abs(d) - lim) / 2 * Math.sign(d); c.h[i] -= m; c.h[i + 1] += m; }
+      }
+      c.h[0] *= .9; c.h[c.n - 1] *= .9;
+    };
+    let acc = 0;
+    return (dt) => {
+      if (!slide.classList.contains('live') || !w) return;
+      const rect = cv.getBoundingClientRect();
+      const px = pointer.x - rect.left, py = pointer.y - rect.top, R = 75 * U;
+      const near = px > -R && px < w + R && py > -R && py < h + R;
+      acc += dt * 16 * (w / 1000 + .4);
+      while (acc > 1) { acc--; spawn(rnd(-20, w + 20), -6, rnd(-8, 8) * U, rnd(20, 50) * U, false); }
+      const shake = Math.abs(scrollV);
+      if (shake > 500) {
+        const f = Math.min(.35, (shake - 500) / 6000) * dt * 60;
+        for (const c of cols) for (let i = 0; i < c.n; i += 2) if (c.h[i] > .0004 && Math.random() < .5) knock(c, i, c.h[i] * f, rnd(-40, 40) * U, -Math.sign(scrollV) * rnd(20, 90) * U);
+      }
+      if (near && pointer.on) {
+        const sp = Math.min(1, Math.hypot(pointer.vx, pointer.vy) / 1400);
+        for (const c of cols) {
+          if ((px + R * .6) / w < c.x0 || (px - R * .6) / w > c.x1) continue;
+          const i0 = colAt(c, px - R * .6), i1 = colAt(c, px + R * .6);
+          const a = i0 < 0 ? 0 : i0, b = i1 < 0 ? c.n - 1 : i1;
+          for (let i = a; i <= b; i++) {
+            const sx = (c.x0 + (c.x1 - c.x0) * i / (c.n - 1)) * w, sy = surface(c, i), dd = Math.hypot(sx - px, sy - py);
+            if (dd < R * .6) knock(c, i, HMAX * (1 - dd / (R * .6)) * (.05 + .5 * sp) * dt * 30, pointer.vx * .25 + (sx - px) * 3, Math.min(0, pointer.vy * .25) - rnd(40, 120) * U);
+          }
+        }
+      }
+      for (let k = flakes.length - 1; k >= 0; k--) {
+        const f = flakes[k], py0 = f.y;
+        if (f.clump) f.vy += 900 * U * dt;
+        else { f.ph += dt * 1.3; f.vy += (f.vt * U - f.vy) * dt * 1.5; f.vx += (Math.sin(f.ph) * 14 * U - f.vx) * dt * .8; }
+        if (f.vy > f.vt * U * (f.clump ? 1.6 : 1.4)) f.vy = f.vt * U * (f.clump ? 1.6 : 1.4);
+        f.vx *= f.clump ? .995 : 1;
+        if (near) {
+          const dx = f.x - px, dy = f.y - py, dd = Math.hypot(dx, dy);
+          if (dd < R && dd > .1) {
+            const s = (1 - dd / R);
+            f.vx += (dx / dd * 520 * U + pointer.vx * .5) * s * dt * 3; f.vy += (dy / dd * 520 * U + pointer.vy * .5) * s * dt * 3;
+          }
+        }
+        f.x += f.vx * dt; f.y += f.vy * dt + scrollDy * .3;
+        if (f.vy > 0) for (const c of cols) {
+          const i = colAt(c, f.x); if (i < 0) continue;
+          const sy = surface(c, i);
+          if (py0 <= sy + 1 && f.y >= sy) {
+            if (c.h[i] < HMAX) c.h[i] += f.r * f.r * .00004 * (f.clump ? 1.4 : 1);
+            flakes.splice(k, 1); break;
+          }
+        }
+        if (flakes[k] === f && (f.y > h + 20 || f.x < -60 || f.x > w + 60 || f.y < -200)) flakes.splice(k, 1);
+      }
+      for (const c of cols) relax(c);
+      ctx.clearRect(0, 0, w, h);
+      for (const c of cols) {
+        let mx = 0; for (let i = 0; i < c.n; i++) mx = Math.max(mx, c.h[i]);
+        if (mx < .0003) continue;
+        ctx.beginPath();
+        for (let i = 0; i < c.n; i++) ctx.lineTo((c.x0 + (c.x1 - c.x0) * i / (c.n - 1)) * w, surface(c, i));
+        for (let i = c.n - 1; i >= 0; i--) ctx.lineTo((c.x0 + (c.x1 - c.x0) * i / (c.n - 1)) * w, c.y[i] * w + .6);
+        ctx.closePath();
+        ctx.shadowColor = dark ? 'rgba(10,30,70,.35)' : 'rgba(60,95,150,.35)'; ctx.shadowBlur = 4 * U + 1; ctx.shadowOffsetY = 1;
+        const g = ctx.createLinearGradient(0, (c.y[0] - HMAX) * w, 0, c.y[0] * w);
+        g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#e4eefa');
+        ctx.fillStyle = g; ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      }
+      for (const f of flakes) {
+        ctx.globalAlpha = f.o; ctx.fillStyle = '#fff';
+        if (!dark) { ctx.shadowColor = 'rgba(70,110,170,.55)'; ctx.shadowBlur = 2.5; }
+        ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (U * .7 + .35), 0, TAU); ctx.fill();
+      }
+      ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+    };
+  }
+
+  // ---------- запуск ----------
+  function play(s) {
+    if (s.dataset.done) return; s.dataset.done = 1;
+    s.classList.add('played');
+    if (still) return;
+    s.querySelectorAll('.gl').forEach(g => { const k = +g.dataset.k; if (k >= 0) shine(g, 350 + k * 260, true); });
+    s.querySelectorAll('.arc').forEach(drawArc);
+    words(s, 500);
+  }
+  // слова заголовка по очереди слегка увеличиваются и встают обратно
+  function words(s, delay) {
+    s.querySelectorAll('.word').forEach(w => w.animate(
+      [{ transform: 'scale(1)' }, { transform: 'scale(1.09)', offset: .4 }, { transform: 'scale(1)' }],
+      { duration: 750, delay: delay + (+w.dataset.k) * 230, easing: 'cubic-bezier(.3,.6,.3,1)' }));
+  }
+  setInterval(() => {
+    if (still || document.hidden) return;
+    slides.forEach(s => { if (s.classList.contains('live') && s.dataset.done) words(s, 0); });
+  }, 9000);
+  const reveal = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { thaw(e.target); reveal.unobserve(e.target); }
+  }), { threshold: .3 });
+  const liveObs = new IntersectionObserver(es => es.forEach(e => {
+    e.target.classList.toggle('live', e.isIntersecting);
+    if (e.isIntersecting && e.intersectionRatio > .45) play(e.target);
+  }), { threshold: [0, .5] });
+  slides.forEach(s => { reveal.observe(s); liveObs.observe(s); });
+  if (still) { slides.forEach(play); return; }
+
+  const sims = slides.map(snow);
+  let last = performance.now();
+  const loop = now => {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    scrollDy = scrollY - lastScroll; lastScroll = scrollY;
+    scrollV = scrollV * .8 + (dt ? scrollDy / dt : 0) * .2;
+    for (const s of sims) s(dt);
+    for (const s of swings) s(dt, now / 1000);
+    pointer.vx *= .9; pointer.vy *= .9;
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
