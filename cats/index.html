@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Город кошек в Охта Парке</title>
+<style>
+  html, body { margin: 0; background: #ff9025; }
+  body { overflow-x: hidden; }
+  img { display: block; }
+  /* каждый блок: исходный слайд 1920x1080 без изменений, слои лежат поверх */
+  .slide { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
+  .slide > .base { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .layer { position: absolute; }
+  .layer img { width: 100%; height: 100%; }
+
+  /* перелив света по заголовку: маска из букв слайда, в покое прозрачна */
+  .shine {
+    position: absolute; pointer-events: none;
+    -webkit-mask: var(--m) 0 0 / 100% 100% no-repeat; mask: var(--m) 0 0 / 100% 100% no-repeat;
+    background: linear-gradient(105deg, transparent 38%, var(--g, #fff) 50%, transparent 62%) 100% 0 / 300% 100% no-repeat;
+  }
+  .shine.go { animation: shine 1.9s cubic-bezier(.4, 0, .3, 1); }
+  @keyframes shine { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+  /* блик по карточке */
+  .glint { position: absolute; overflow: hidden; border-radius: 1.5vw; pointer-events: none; }
+  .glint::before {
+    content: ""; position: absolute; top: -20%; bottom: -20%; left: -60%; width: 45%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .34) 50%, transparent);
+    transform: skewX(-18deg);
+  }
+  .glint.go::before { animation: glint 1.5s ease-in-out; }
+  @keyframes glint { from { left: -60%; } to { left: 120%; } }
+
+  /* обложка: кот слегка дышит */
+  .cat { transform-origin: 50% 100%; animation: breathe 7s ease-in-out infinite; }
+
+  /* ручки гладят кота, плашка покачивается */
+  .hands { position: absolute; inset: 0; transform-origin: 50% 62%; animation: pet 3.4s ease-in-out infinite; }
+  @keyframes pet { 0%, 100% { transform: none; } 50% { transform: translate(.2vw, .75vw) rotate(1.8deg); } }
+  .pill { transform-origin: 50% 50%; animation: sway 5.5s ease-in-out infinite; }
+  @keyframes sway { 0%, 100% { transform: none; } 25% { transform: rotate(1.3deg) translateY(-.28vw); } 75% { transform: rotate(-1.3deg) translateY(.22vw); } }
+
+  /* карточки второго слайда встают по очереди */
+  .js .card { opacity: 0; transform: translateY(9%); }
+  .js .seen .card { opacity: 1; transform: none; transition: opacity .7s, transform .9s cubic-bezier(.2, .8, .2, 1); transition-delay: var(--d); }
+
+  /* плашки слегка увеличиваются при наведении */
+  .js .seen .card:hover, .hov:hover { transform: scale(1.04); transition: transform .3s cubic-bezier(.2, .8, .2, 1) 0s; }
+  .hov { transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+
+  /* следы лап */
+  .paws { position: absolute; left: 5.4%; top: 41.4%; width: 56%; height: 7.4%; pointer-events: none; }
+  .paw { position: absolute; width: 3.4%; opacity: 0; }
+  .paw svg { display: block; width: 100%; transform: rotate(var(--r)); }
+  .paws.go .paw { animation: paw 3.6s ease-out both; animation-delay: var(--d); }
+  @keyframes paw { 0% { opacity: 0; transform: scale(.5); } 7% { opacity: .55; transform: scale(1.08); } 12% { transform: scale(1); } 70% { opacity: .55; } 100% { opacity: 0; } }
+
+
+  @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.012); } }
+
+  /* фото: лёгкое покачивание, в начале цикла стоят ровно как на слайде */
+  .ph-back  { animation: fl1 9s ease-in-out infinite; }
+  .ph-front { animation: fl2 11s ease-in-out infinite; }
+  @keyframes fl1 { 0%, 100% { transform: none; } 50% { transform: translateY(-.28vw) rotate(-.5deg); } }
+  @keyframes fl2 { 0%, 100% { transform: none; } 50% { transform: translateY(.3vw) rotate(.55deg); } }
+
+  /* карусель домиков */
+  .viewport { position: absolute; left: 0; width: 100%; top: 34.72%; height: 59.26%; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 4.5%, #000 95.5%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4.5%, #000 95.5%, transparent); cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  .viewport.dragging { cursor: grabbing; }
+  .track { display: flex; height: 100%; will-change: transform; }
+  .track.anim { transition: transform .8s cubic-bezier(.65, 0, .35, 1); }
+  .house { flex: 0 0 31.25%; height: 100%; }
+  .house img { width: 100%; height: 100%; pointer-events: none; -webkit-user-drag: none; }
+  .arrow {
+    position: absolute; top: 58%; width: 3vw; height: 3vw; min-width: 30px; min-height: 30px;
+    transform: translateY(-50%);
+    border: .14vw solid #111; border-radius: 50%; background: rgba(232, 242, 251, .7); color: #111;
+    display: grid; place-items: center; cursor: pointer; padding: 0;
+    transition: background .2s, color .2s;
+  }
+  .arrow:hover { background: #111; color: #e8f2fb; }
+  .arrow svg { width: 40%; height: 40%; }
+  #prev { left: 1.4%; } #next { right: 1.4%; }
+  .dots { position: absolute; left: 0; right: 0; bottom: 2.2%; display: flex; justify-content: center; gap: .45vw; }
+  .dot { width: .7vw; height: .34vw; min-height: 4px; min-width: 8px; padding: 0; border: 0; border-radius: 99px; background: rgba(17, 17, 17, .18); cursor: pointer; position: relative; overflow: hidden; transition: width .4s; }
+  .dot.active { width: 2.6vw; }
+  .dot i { position: absolute; inset: 0; background: #ff9025; transform: scaleX(0); transform-origin: 0 50%; }
+  .dot.active i { animation: fill var(--dur, 3s) linear forwards; }
+  .dots.paused .dot.active i { animation-play-state: paused; }
+  @keyframes fill { to { transform: scaleX(1); } }
+
+  .hit { position: absolute; border-radius: 99px; }
+  .hit:hover { background: rgba(255, 144, 37, .16); }
+  @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- слайд 1 -->
+<section class="slide" data-fx>
+  <img class="base" src="x/s1.png" alt="Город кошек в Охта Парке">
+  <div class="layer cat" style="left:52.083%;top:2.778%;width:46.875%;height:93.519%"><img src="x/cat.png" alt=""><img class="hands" src="x/hands.png" alt=""></div>
+  <div class="layer pill" style="left:13.802%;top:58.796%;width:36.719%;height:19.444%"><img src="x/pill.png" alt=""></div>
+  <div class="shine" style="--m:url(x/m1.png);--g:#bfe4f7;left:5.99%;top:32.87%;width:44.01%;height:27.5%"></div>
+</section>
+
+<!-- слайд 2 -->
+<section class="slide" data-fx>
+  <img class="base" src="x/s2.png" alt="Уникальная семейная локация для гостей курорта и яркая платформа для партнёрства">
+  <div class="layer ph-back"  style="left:65.729%;top:.463%;width:30.729%;height:43.981%"><img src="x/ph-back.png" alt=""></div>
+  <div class="layer ph-front" style="left:65.729%;top:.463%;width:30.729%;height:43.981%"><img src="x/ph-front.png" alt=""></div>
+  <div class="layer card" style="--d:0s;left:4.375%;top:48.519%;width:22.708%;height:43.704%"><img src="x/card1.png" alt=""></div>
+  <div class="layer card" style="--d:.14s;left:27.083%;top:48.519%;width:22.708%;height:43.704%"><img src="x/card2.png" alt=""></div>
+  <div class="layer card" style="--d:.28s;left:49.740%;top:48.519%;width:22.708%;height:43.704%"><img src="x/card3.png" alt=""></div>
+  <div class="layer card" style="--d:.42s;left:72.448%;top:48.519%;width:22.708%;height:43.704%"><img src="x/card4.png" alt=""></div>
+  <div class="paws" id="paws"></div>
+  <div class="shine" style="--m:url(x/m2.png);--g:rgba(255,255,255,.75);left:4.948%;top:9.259%;width:59.375%;height:18.981%"></div>
+  <div class="glint" style="left:5.208%;top:50%;width:21.04%;height:39.81%"></div>
+  <div class="glint" style="left:27.917%;top:50%;width:21.04%;height:39.81%"></div>
+  <div class="glint" style="left:50.573%;top:50%;width:21.04%;height:39.81%"></div>
+  <div class="glint" style="left:73.281%;top:50%;width:21.04%;height:39.81%"></div>
+</section>
+
+<!-- слайды 3 и 4: одна карусель -->
+<section class="slide" data-fx id="town">
+  <img class="base" src="x/town-bg.png" alt="Визуализация концепции городка">
+  <div class="shine" style="--m:url(x/m3.png);--g:rgba(255,255,255,.75);left:5.208%;top:8.796%;width:38.542%;height:12.037%"></div>
+  <div class="viewport" id="viewport"><div class="track" id="track"></div></div>
+  <button class="arrow" id="prev" aria-label="Предыдущий домик"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4 6.5 10l6 6"/></svg></button>
+  <button class="arrow" id="next" aria-label="Следующий домик"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4l6 6-6 6"/></svg></button>
+  <div class="dots" id="dots"></div>
+</section>
+
+<!-- слайд 5 -->
+<section class="slide" data-fx>
+  <img class="base" src="x/s5.png" alt="Возможности для вашего бренда">
+  <div class="layer hov" style="left:26.927%;top:50%;width:22.656%;height:39.815%"><img src="x/c5-2.png" alt=""></div>
+  <div class="layer hov" style="left:73.854%;top:50%;width:22.656%;height:39.815%"><img src="x/c5-4.png" alt=""></div>
+  <div class="layer" style="left:65.365%;top:79.167%;width:11.719%;height:12.5%;pointer-events:none"><img src="x/yarn.png" alt=""></div>
+  <div class="shine" style="--m:url(x/m5.png);--g:#ffd3a1;left:31.771%;top:18.981%;width:36.458%;height:12.5%"></div>
+  <div class="glint" style="left:26.927%;top:50%;width:22.6%;height:39.81%"></div>
+</section>
+
+<!-- слайд 6 -->
+<section class="slide" data-fx>
+  <img class="base" src="x/s6.png" alt="Станьте частью кошачьего города">
+  <div class="shine" style="--m:url(x/m6.png);--g:#a9cfe6;left:57.813%;top:25.926%;width:36.458%;height:12.037%"></div>
+  <a class="hit" href="mailto:info@ohtapark.ru" aria-label="info@ohtapark.ru" style="left:58.385%;top:58.426%;width:16.771%;height:5.278%"></a>
+  <a class="hit" href="tel:+79214003709" aria-label="+7 921 400-37-09" style="left:75.938%;top:58.426%;width:16.823%;height:5.278%"></a>
+</section>
+
+<script>
+(() => {
+  document.documentElement.classList.add("js");
+  /* следы лап на втором слайде */
+  const paws = document.getElementById("paws");
+  for (let i = 0; i < 9; i++) {
+    const d = document.createElement("div");
+    d.className = "paw";
+    d.style.cssText = `left:${i * 11.6}%;top:${i % 2 ? 46 : 0}%;--d:${i * .3}s;--r:${90 + (i % 2 ? 10 : -10)}deg`;
+    d.innerHTML = '<svg viewBox="0 0 40 40" fill="#ff9025"><ellipse cx="20" cy="27" rx="10" ry="8.5"/><ellipse cx="7.5" cy="16" rx="3.6" ry="4.6"/><ellipse cx="15.5" cy="9" rx="3.8" ry="5"/><ellipse cx="24.5" cy="9" rx="3.8" ry="5"/><ellipse cx="32.5" cy="16" rx="3.6" ry="4.6"/></svg>';
+    paws.appendChild(d);
+  }
+
+  /* ---------- карусель ---------- */
+  const HOUSES = [
+    ["katok", "Кото-каток"], ["pizza", "Кото-пиццерия"], ["prokat", "Кото-прокат"],
+    ["karusel", "Кото-карусель"], ["bassein", "Кото-бассейн"], ["express", "Мур-экспресс"],
+  ];
+  const N = HOUSES.length, AUTO_MS = 3000, RESUME_MS = 3000;
+  const viewport = document.getElementById("viewport");
+  const track = document.getElementById("track");
+  const dotsBox = document.getElementById("dots");
+  const items = [];
+  for (let c = 0; c < 3; c++) HOUSES.forEach(([f, t]) => {
+    const el = document.createElement("div");
+    el.className = "house";
+    el.innerHTML = `<img src="x/h-${f}.png" alt="${t}" draggable="false">`;
+    track.appendChild(el); items.push(el);
+  });
+  const dots = HOUSES.map(([, t], i) => {
+    const b = document.createElement("button");
+    b.className = "dot"; b.setAttribute("aria-label", t); b.innerHTML = "<i></i>";
+    b.addEventListener("click", () => { manual(); go(nearest(i)); });
+    dotsBox.appendChild(b); return b;
+  });
+
+  let index = N + 1, dragX = 0;   // в центре пиццерия: слева каток, справа прокат, как на слайде
+  const itemW = () => items[0].getBoundingClientRect().width;
+  const offset = () => viewport.clientWidth / 2 - (index * itemW() + itemW() / 2) + dragX;
+  const render = (anim) => { track.classList.toggle("anim", anim); track.style.transform = `translate3d(${offset()}px,0,0)`; };
+  const real = () => ((index % N) + N) % N;
+  function mark() {
+    const r = real();
+    dots.forEach((d, k) => {
+      const on = k === r;
+      if (on && d.classList.contains("active")) { d.classList.remove("active"); void d.offsetWidth; }
+      d.classList.toggle("active", on);
+    });
+  }
+  function nearest(i) {
+    let best = index, dist = Infinity;
+    for (let k = i; k < 3 * N; k += N) if (Math.abs(k - index) < dist) { dist = Math.abs(k - index); best = k; }
+    return best;
+  }
+  function go(k, anim = true) { index = k; render(anim); mark(); }
+  track.addEventListener("transitionend", (e) => {
+    if (e.target !== track) return;
+    if (index < N || index >= 2 * N) { index = real() + N; render(false); }
+  });
+
+  let timer = null, resumeTimer = null, onScreen = false;
+  function startAuto() {
+    stopAuto();
+    if (!onScreen || document.hidden) return;
+    dotsBox.classList.remove("paused");
+    timer = setInterval(() => go(index + 1), AUTO_MS);
+    mark();
+  }
+  function stopAuto() { clearInterval(timer); timer = null; dotsBox.classList.add("paused"); }
+  function manual() { stopAuto(); clearTimeout(resumeTimer); resumeTimer = setTimeout(startAuto, RESUME_MS); }
+  document.documentElement.style.setProperty("--dur", AUTO_MS + "ms");
+  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; onScreen ? startAuto() : stopAuto(); }, { threshold: .4 }).observe(viewport);
+  document.addEventListener("visibilitychange", () => { document.hidden ? stopAuto() : startAuto(); });
+
+  document.getElementById("prev").addEventListener("click", () => { manual(); go(index - 1); });
+  document.getElementById("next").addEventListener("click", () => { manual(); go(index + 1); });
+  document.addEventListener("keydown", (e) => {
+    if (!onScreen) return;
+    if (e.key === "ArrowLeft") { manual(); go(index - 1); }
+    if (e.key === "ArrowRight") { manual(); go(index + 1); }
+  });
+
+  let startX = 0, startY = 0, down = false, axis = null;
+  viewport.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    down = true; axis = null; startX = e.clientX; startY = e.clientY; dragX = 0;
+  });
+  window.addEventListener("pointermove", (e) => {
+    if (!down) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (!axis && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+      axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+      if (axis === "x") { viewport.classList.add("dragging"); stopAuto(); clearTimeout(resumeTimer); }
+    }
+    if (axis !== "x") return;
+    dragX = dx; render(false);
+  });
+  const end = () => {
+    if (!down) return;
+    down = false;
+    viewport.classList.remove("dragging");
+    if (axis !== "x") { dragX = 0; return; }
+    const w = itemW();
+    let step = Math.round(-dragX / w);
+    if (step === 0 && Math.abs(dragX) > w * 0.12) step = dragX < 0 ? 1 : -1;
+    dragX = 0; manual();
+    go(Math.max(1, Math.min(3 * N - 2, index + step)));
+  };
+  window.addEventListener("pointerup", end);
+  window.addEventListener("pointercancel", end);
+  window.addEventListener("resize", () => render(false));
+  go(index, false);
+
+  /* ---------- переливы и блики ----------
+     заголовок переливается при заходе на слайд; дальше один эффект на всю страницу раз в 15-22 с */
+  const play = (el) => { el.classList.remove("go"); void el.offsetWidth; el.classList.add("go"); };
+  const visible = new Set();
+  let last = 0;
+  const obs = new IntersectionObserver((es) => es.forEach(e => {
+    if (e.isIntersecting) {
+      visible.add(e.target);
+      if (!e.target.dataset.seen) {
+        e.target.dataset.seen = 1;
+        e.target.classList.add("seen");
+        setTimeout(() => e.target.querySelectorAll(".card").forEach(c => c.style.setProperty("--d", "0s")), 1600);
+        const pw = e.target.querySelector(".paws");
+        if (pw) setTimeout(() => play(pw), pw.classList.contains("paws") ? 1500 : 900);
+        const s = e.target.querySelector(".shine");
+        if (s) setTimeout(() => { play(s); last = Date.now(); }, 400);
+      }
+    } else visible.delete(e.target);
+  }), { threshold: .45 });
+  document.querySelectorAll("[data-fx]").forEach(s => obs.observe(s));
+  (function loop() {
+    setTimeout(() => {
+      const pool = [...visible].flatMap(s => [...s.querySelectorAll(".shine, .glint, .paws")]);
+      if (pool.length && !document.hidden && Date.now() - last > 12000) {
+        play(pool[Math.floor(Math.random() * pool.length)]); last = Date.now();
+      }
+      loop();
+    }, 15000 + Math.random() * 7000);
+  })();
+})();
+</script>
+</body>
+</html>
